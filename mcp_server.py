@@ -25,7 +25,7 @@ try:
 except ImportError:
     from mcp.server.fastmcp import FastMCP as MCPServer  # mcp 1.x (구버전 호환)
 
-from rag_basic import BASE_DIR, MODEL, get_collection, retrieve
+from rag_basic import BASE_DIR, MODEL, get_collection, render_doc, retrieve
 
 DOCS_DIR = (BASE_DIR / "data" / "fastapi_docs").resolve()
 MAX_DOC_CHARS = 20_000  # 문서가 너무 길면 LLM 컨텍스트를 낭비하므로 잘라서 반환
@@ -48,8 +48,9 @@ def search_docs(query: str, top_k: int = 5) -> str:
 
     Use this for any question about FastAPI features, APIs, or usage.
     Write the query in English, since the docs are in English.
-    Returns the most relevant text chunks with their `source` file and section.
-    Lower distance means more relevant; above ~0.6 is usually unrelated.
+    Hybrid search: combines meaning (vector) and exact keywords (BM25), so including
+    API names like `StreamingResponse` or `CORSMiddleware` in the query helps.
+    Returns the most relevant text chunks (with real example code) and their `source` file.
 
     Args:
         query: What to look for, e.g. "run background tasks after response".
@@ -62,7 +63,7 @@ def search_docs(query: str, top_k: int = 5) -> str:
     return "\n\n---\n\n".join(
         f"[{i}] source: {h['source']}\n"
         f"section: {h['section']}\n"
-        f"distance: {h['distance']:.3f}\n\n"
+        f"matched by: {'+'.join(h.get('matched_by', ['vector']))}\n\n"
         f"{h['text']}"
         for i, h in enumerate(hits, 1)
     )
@@ -80,7 +81,7 @@ def read_doc(source: str) -> str:
     # 보안: LLM이 넘긴 경로로 아무 파일이나 읽지 못하도록 문서 폴더 안의 .md만 허용
     if not path.is_relative_to(DOCS_DIR) or path.suffix != ".md" or not path.is_file():
         return f"Error: '{source}' is not a valid documentation file."
-    text = path.read_text(encoding="utf-8", errors="ignore")
+    text = render_doc(path.read_text(encoding="utf-8", errors="ignore"))  # 코드 참조 → 실제 코드
     if len(text) > MAX_DOC_CHARS:
         text = text[:MAX_DOC_CHARS] + "\n\n...(truncated)"
     return text

@@ -77,6 +77,24 @@ def result_text(result) -> tuple[str, bool]:
     return text, is_error
 
 
+def compact_issues(text: str, body_chars: int = 300) -> str:
+    """search_issues의 원본 JSON(이슈 본문 전체 포함)을 필요한 필드만 남겨 줄인다 → 토큰 절약."""
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        return text
+    items = [
+        {
+            "number": it.get("number"), "title": it.get("title"), "state": it.get("state"),
+            "url": it.get("html_url"), "comments": it.get("comments"),
+            "updated_at": (it.get("updated_at") or "")[:10],
+            "body": " ".join((it.get("body") or "").split())[:body_chars],
+        }
+        for it in data.get("items", [])
+    ]
+    return json.dumps({"total_count": data.get("total_count"), "items": items}, ensure_ascii=False)
+
+
 # ── HTTP(원격) MCP 서버 연결 ───────────────────────────────
 # stdio는 내 PC에서 서버 프로세스를 직접 띄우고, HTTP는 이미 떠 있는 원격 서버에 접속한다.
 # (mcp 2.x / 1.x의 함수 이름이 달라서 둘 다 지원)
@@ -152,6 +170,10 @@ async def run_agent(question: str, registry: dict, tools: list[dict], llm) -> st
                 try:
                     result = await session.call_tool(block.name, block.input)
                     text, is_error = result_text(result)
+                    if block.name == "search_issues" and not is_error:
+                        before = len(text)
+                        text = compact_issues(text)
+                        log("compact", f"{before:,}자 → {len(text):,}자")
                     # 승인은 내 코드에서만 일어나므로, Claude가 알 수 있게 결과에 적어 준다
                     if block.name in WRITE_TOOLS and not is_error:
                         text = "[Approved by the user and executed]\n" + text

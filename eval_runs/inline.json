@@ -1,0 +1,932 @@
+{
+ "vector": {
+  "metrics": {
+   "Hit@1": 0.6666666666666666,
+   "Hit@5": 0.9,
+   "MRR": 0.7777777777777778,
+   "Noise": 0.03333333333333333
+  },
+  "questions": [
+   {
+    "q": "How can I allow a frontend running on another domain to call my API?",
+    "rank": 2,
+    "top3": [
+     "first-steps.md",
+     "cors.md",
+     "frontend.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "How do I receive an uploaded file in an endpoint?",
+    "rank": 1,
+    "top3": [
+     "request-files.md",
+     "request-files.md",
+     "uploadfile.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return a 404 error with a custom message when an item is not found",
+    "rank": 2,
+    "top3": [
+     "dependencies-with-yield.md",
+     "handling-errors.md",
+     "handling-errors.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Hash user passwords and issue JWT access tokens on login",
+    "rank": 1,
+    "top3": [
+     "oauth2-jwt.md",
+     "oauth2-scopes.md",
+     "oauth2-scopes.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run setup code when the app starts and cleanup code when it shuts down",
+    "rank": 1,
+    "top3": [
+     "events.md",
+     "events.md",
+     "events.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Replace a dependency with a fake one during tests",
+    "rank": 1,
+    "top3": [
+     "testing-dependencies.md",
+     "testing-dependencies.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Split a large application into multiple files with routers",
+    "rank": 1,
+    "top3": [
+     "bigger-applications.md",
+     "bigger-applications.md",
+     "bigger-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Limit a query parameter string to a maximum length of 50 characters",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a cookie on the response",
+    "rank": 1,
+    "top3": [
+     "response-cookies.md",
+     "response-cookies.md",
+     "responses.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve images and CSS files from a directory",
+    "rank": 1,
+    "top3": [
+     "static-files.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Load configuration from environment variables using Pydantic",
+    "rank": 1,
+    "top3": [
+     "settings.md",
+     "settings.md",
+     "settings.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Real-time two-way communication between browser and server",
+    "rank": 2,
+    "top3": [
+     "https.md",
+     "websockets.md",
+     "websockets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Send a large file to the client in chunks with StreamingResponse",
+    "rank": 1,
+    "top3": [
+     "custom-response.md",
+     "stream-data.md",
+     "custom-response.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a header with the processing time of every request",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "middleware.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Partially update an item with a PATCH request",
+    "rank": 1,
+    "top3": [
+     "body-updates.md",
+     "body-updates.md",
+     "body-updates.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Show an example request body in the interactive API docs",
+    "rank": null,
+    "top3": [
+     "custom-response.md",
+     "body.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Use a class instead of a function as a dependency",
+    "rank": 1,
+    "top3": [
+     "classes-as-dependencies.md",
+     "advanced-dependencies.md",
+     "classes-as-dependencies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run the app with several worker processes in production",
+    "rank": 2,
+    "top3": [
+     "docker.md",
+     "server-workers.md",
+     "concepts.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Build a container image for a FastAPI application",
+    "rank": 1,
+    "top3": [
+     "docker.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Close the database session after the request finishes",
+    "rank": null,
+    "top3": [
+     "release-notes.md",
+     "advanced-dependencies.md",
+     "advanced-dependencies.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Store and query data in a SQL database with SQLModel",
+    "rank": 1,
+    "top3": [
+     "sql-databases.md",
+     "sql-databases.md",
+     "sql-databases.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Disable the /docs page in production",
+    "rank": 1,
+    "top3": [
+     "conditional-openapi.md",
+     "custom-docs-ui-assets.md",
+     "metadata.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Write tests for my API with pytest and TestClient",
+    "rank": 1,
+    "top3": [
+     "testing.md",
+     "testing.md",
+     "testing.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mount another independent FastAPI app under a sub-path",
+    "rank": 2,
+    "top3": [
+     "behind-a-proxy.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Should I declare path operation functions with async def or normal def?",
+    "rank": 2,
+    "top3": [
+     "index.md",
+     "async.md",
+     "async.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return status code 201 when an item is created",
+    "rank": 3,
+    "top3": [
+     "response-change-status-code.md",
+     "additional-status-codes.md",
+     "response-status-code.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Make sure the password field is not included in the response",
+    "rank": null,
+    "top3": [
+     "http-basic-auth.md",
+     "http-basic-auth.md",
+     "oauth2-scopes.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Do some work after the response has been sent",
+    "rank": 1,
+    "top3": [
+     "background-tasks.md",
+     "background-tasks.md",
+     "response-status-code.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Generate a TypeScript client from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "generate-clients.md",
+     "generate-clients.md",
+     "generate-clients.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Protect an endpoint with HTTP Basic username and password",
+    "rank": 1,
+    "top3": [
+     "http-basic-auth.md",
+     "first-steps.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   }
+  ]
+ },
+ "bm25": {
+  "metrics": {
+   "Hit@1": 0.6,
+   "Hit@5": 0.8,
+   "MRR": 0.6705555555555556,
+   "Noise": 0.04000000000000001
+  },
+  "questions": [
+   {
+    "q": "How can I allow a frontend running on another domain to call my API?",
+    "rank": null,
+    "top3": [
+     "first-steps.md",
+     "first-steps.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "How do I receive an uploaded file in an endpoint?",
+    "rank": 1,
+    "top3": [
+     "request-files.md",
+     "request-forms-and-files.md",
+     "request-forms-and-files.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return a 404 error with a custom message when an item is not found",
+    "rank": 1,
+    "top3": [
+     "handling-errors.md",
+     "additional-responses.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Hash user passwords and issue JWT access tokens on login",
+    "rank": 1,
+    "top3": [
+     "oauth2-jwt.md",
+     "oauth2-jwt.md",
+     "oauth2-jwt.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run setup code when the app starts and cleanup code when it shuts down",
+    "rank": 1,
+    "top3": [
+     "events.md",
+     "docker.md",
+     "index.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Replace a dependency with a fake one during tests",
+    "rank": 1,
+    "top3": [
+     "testing-dependencies.md",
+     "release-notes.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Split a large application into multiple files with routers",
+    "rank": 1,
+    "top3": [
+     "bigger-applications.md",
+     "stream-data.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Limit a query parameter string to a maximum length of 50 characters",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a cookie on the response",
+    "rank": 1,
+    "top3": [
+     "response-cookies.md",
+     "response-cookies.md",
+     "response-cookies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve images and CSS files from a directory",
+    "rank": null,
+    "top3": [
+     "staticfiles.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Load configuration from environment variables using Pydantic",
+    "rank": 3,
+    "top3": [
+     "environment-variables.md",
+     "environment-variables.md",
+     "settings.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Real-time two-way communication between browser and server",
+    "rank": null,
+    "top3": [
+     "https.md",
+     "concepts.md",
+     "cors.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Send a large file to the client in chunks with StreamingResponse",
+    "rank": 3,
+    "top3": [
+     "request-files.md",
+     "stream-json-lines.md",
+     "custom-response.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a header with the processing time of every request",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "async.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Partially update an item with a PATCH request",
+    "rank": 1,
+    "top3": [
+     "body-updates.md",
+     "body-updates.md",
+     "body-updates.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Show an example request body in the interactive API docs",
+    "rank": null,
+    "top3": [
+     "body.md",
+     "index.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use a class instead of a function as a dependency",
+    "rank": 4,
+    "top3": [
+     "advanced-dependencies.md",
+     "testing-dependencies.md",
+     "async.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run the app with several worker processes in production",
+    "rank": null,
+    "top3": [
+     "concepts.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Build a container image for a FastAPI application",
+    "rank": 1,
+    "top3": [
+     "docker.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Close the database session after the request finishes",
+    "rank": 1,
+    "top3": [
+     "dependencies-with-yield.md",
+     "release-notes.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Store and query data in a SQL database with SQLModel",
+    "rank": 1,
+    "top3": [
+     "sql-databases.md",
+     "testing-database.md",
+     "sql-databases.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Disable the /docs page in production",
+    "rank": 1,
+    "top3": [
+     "conditional-openapi.md",
+     "behind-a-proxy.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Write tests for my API with pytest and TestClient",
+    "rank": 1,
+    "top3": [
+     "testing.md",
+     "async-tests.md",
+     "testing.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mount another independent FastAPI app under a sub-path",
+    "rank": 1,
+    "top3": [
+     "sub-applications.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Should I declare path operation functions with async def or normal def?",
+    "rank": 2,
+    "top3": [
+     "index.md",
+     "async.md",
+     "async.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return status code 201 when an item is created",
+    "rank": 2,
+    "top3": [
+     "response-change-status-code.md",
+     "response-status-code.md",
+     "additional-status-codes.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Make sure the password field is not included in the response",
+    "rank": 5,
+    "top3": [
+     "additional-responses.md",
+     "request-form-models.md",
+     "simple-oauth2.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Do some work after the response has been sent",
+    "rank": null,
+    "top3": [
+     "release-notes.md",
+     "advanced-dependencies.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Generate a TypeScript client from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "generate-clients.md",
+     "generate-clients.md",
+     "generate-clients.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Protect an endpoint with HTTP Basic username and password",
+    "rank": 1,
+    "top3": [
+     "http-basic-auth.md",
+     "http-basic-auth.md",
+     "http-basic-auth.md"
+    ],
+    "noise": 0.0
+   }
+  ]
+ },
+ "hybrid": {
+  "metrics": {
+   "Hit@1": 0.6333333333333333,
+   "Hit@5": 0.9333333333333333,
+   "MRR": 0.74,
+   "Noise": 0.04000000000000001
+  },
+  "questions": [
+   {
+    "q": "How can I allow a frontend running on another domain to call my API?",
+    "rank": 4,
+    "top3": [
+     "first-steps.md",
+     "frontend.md",
+     "strict-content-type.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "How do I receive an uploaded file in an endpoint?",
+    "rank": 1,
+    "top3": [
+     "request-files.md",
+     "request-files.md",
+     "request-files.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return a 404 error with a custom message when an item is not found",
+    "rank": 3,
+    "top3": [
+     "dependencies-with-yield.md",
+     "dependencies-with-yield.md",
+     "handling-errors.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Hash user passwords and issue JWT access tokens on login",
+    "rank": 1,
+    "top3": [
+     "oauth2-jwt.md",
+     "simple-oauth2.md",
+     "oauth2-scopes.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run setup code when the app starts and cleanup code when it shuts down",
+    "rank": 1,
+    "top3": [
+     "events.md",
+     "docker.md",
+     "events.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Replace a dependency with a fake one during tests",
+    "rank": 1,
+    "top3": [
+     "testing-dependencies.md",
+     "release-notes.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Split a large application into multiple files with routers",
+    "rank": 1,
+    "top3": [
+     "bigger-applications.md",
+     "dependencies-in-path-operation-decorators.md",
+     "bigger-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Limit a query parameter string to a maximum length of 50 characters",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a cookie on the response",
+    "rank": 1,
+    "top3": [
+     "response-cookies.md",
+     "response-cookies.md",
+     "response-cookies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve images and CSS files from a directory",
+    "rank": 4,
+    "top3": [
+     "staticfiles.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Load configuration from environment variables using Pydantic",
+    "rank": 1,
+    "top3": [
+     "settings.md",
+     "settings.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Real-time two-way communication between browser and server",
+    "rank": 5,
+    "top3": [
+     "https.md",
+     "cors.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Send a large file to the client in chunks with StreamingResponse",
+    "rank": 1,
+    "top3": [
+     "custom-response.md",
+     "custom-response.md",
+     "stream-json-lines.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a header with the processing time of every request",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "custom-request-and-route.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Partially update an item with a PATCH request",
+    "rank": 1,
+    "top3": [
+     "body-updates.md",
+     "body-updates.md",
+     "body-updates.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Show an example request body in the interactive API docs",
+    "rank": null,
+    "top3": [
+     "body.md",
+     "index.md",
+     "index.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use a class instead of a function as a dependency",
+    "rank": 2,
+    "top3": [
+     "advanced-dependencies.md",
+     "classes-as-dependencies.md",
+     "dependencies-in-path-operation-decorators.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run the app with several worker processes in production",
+    "rank": 3,
+    "top3": [
+     "docker.md",
+     "docker.md",
+     "server-workers.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Build a container image for a FastAPI application",
+    "rank": 1,
+    "top3": [
+     "docker.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Close the database session after the request finishes",
+    "rank": 2,
+    "top3": [
+     "release-notes.md",
+     "dependencies-with-yield.md",
+     "advanced-dependencies.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Store and query data in a SQL database with SQLModel",
+    "rank": 1,
+    "top3": [
+     "sql-databases.md",
+     "sql-databases.md",
+     "testing-database.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Disable the /docs page in production",
+    "rank": 1,
+    "top3": [
+     "conditional-openapi.md",
+     "metadata.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Write tests for my API with pytest and TestClient",
+    "rank": 1,
+    "top3": [
+     "testing.md",
+     "testing.md",
+     "testing.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mount another independent FastAPI app under a sub-path",
+    "rank": 1,
+    "top3": [
+     "sub-applications.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Should I declare path operation functions with async def or normal def?",
+    "rank": 2,
+    "top3": [
+     "index.md",
+     "async.md",
+     "async.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return status code 201 when an item is created",
+    "rank": 3,
+    "top3": [
+     "additional-status-codes.md",
+     "response-change-status-code.md",
+     "response-status-code.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Make sure the password field is not included in the response",
+    "rank": null,
+    "top3": [
+     "simple-oauth2.md",
+     "http-basic-auth.md",
+     "additional-responses.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Do some work after the response has been sent",
+    "rank": 1,
+    "top3": [
+     "background-tasks.md",
+     "release-notes.md",
+     "background-tasks.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Generate a TypeScript client from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "generate-clients.md",
+     "generate-clients.md",
+     "generate-clients.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Protect an endpoint with HTTP Basic username and password",
+    "rank": 1,
+    "top3": [
+     "http-basic-auth.md",
+     "http-basic-auth.md",
+     "http-basic-auth.md"
+    ],
+    "noise": 0.0
+   }
+  ]
+ }
+}
