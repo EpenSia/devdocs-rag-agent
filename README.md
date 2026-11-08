@@ -1,37 +1,61 @@
-# FastAPI Docs Agent — RAG · MCP · Agent 직접 구현하기
+# FastAPI Support Agent — RAG · MCP · Agent 직접 구현하기
 
-FastAPI 공식 문서를 근거로 질문에 답하는 AI 에이전트입니다.
-**RAG(검색 증강 생성) → MCP(Model Context Protocol) 서버 → 직접 구현한 에이전트 루프**를 단계별로 쌓아 올리며,
-세 기술이 어떻게 맞물려 하나의 워크플로우가 되는지 학습하고 기록한 프로젝트입니다.
+FastAPI 공식 문서와 GitHub 이슈를 근거로 질문에 답하고, 해결되지 않는 문제는 **사람의 승인을 거쳐** GitHub 이슈로 등록하는 AI 에이전트입니다.
+
+**RAG(검색 증강 생성) → MCP(Model Context Protocol) 서버 → 직접 구현한 에이전트 루프 → 외부 MCP 서버 연동**을 단계별로 쌓아 올리며, 세 기술이 어떻게 맞물려 하나의 워크플로우가 되는지 학습하고 기록한 프로젝트입니다.
 
 > LangChain 같은 프레임워크 없이 각 계층을 직접 구현해, 내부 동작을 코드 수준에서 설명할 수 있는 것을 목표로 했습니다.
 
-<!-- 데모 GIF: agent.py 실행 화면 (turn별 도구 호출 로그가 보이도록) -->
+<!-- 데모 GIF: agent.py 실행 화면 (도구 호출 로그 + 승인 요청 화면이 보이도록) -->
 <!-- ![demo](docs/demo.gif) -->
 
 ---
+
+## 워크플로우
+
+```
+사용자 질문
+   ↓
+[Agent] 질문 분석 → "문서 검색이 먼저 필요하다"고 판단
+   ↓ search_docs / read_doc                         ← 내가 만든 MCP 서버 (RAG)
+[Agent] 문서로 해결되지 않으면
+   ↓ search_issues / issue_read                     ← GitHub 공식 MCP 서버
+[Agent] 그래도 미해결이고 사용자가 원하면 이슈 초안 작성
+   ↓ issue_write
+[사람]  초안 검토 → 승인(y)해야만 실행, 허용된 테스트 저장소에만
+   ↓
+최종 답변 (문서 파일 / 이슈 URL 출처 포함)
+```
 
 ## 아키텍처
 
 ```mermaid
 flowchart LR
-    U[사용자 질문] --> A
+    U[사용자] --> A
 
-    subgraph A[agent.py · 에이전트 루프]
+    subgraph A[agent.py · 에이전트]
         direction TB
-        L[Claude API<br/>판단·생성] <--> C[MCP 클라이언트<br/>도구 실행]
+        L[Claude API<br/>판단·생성] <--> C[MCP 클라이언트<br/>도구 라우팅]
+        C --> G{쓰기 도구?}
+        G -- 예 --> H[저장소 검사<br/>+ 사람 승인]
     end
 
-    C <-- "JSON-RPC (stdio)" --> S
+    C <-- "stdio" --> S
+    C <-- "HTTP + 토큰" --> GH
 
-    subgraph S[mcp_server.py · MCP 서버]
+    subgraph S[mcp_server.py · 내 MCP 서버]
         T1[search_docs]
         T2[read_doc]
         R1[(docs://stats)]
     end
 
-    T1 --> RB[rag_basic.retrieve]
-    RB --> DB[(Chroma<br/>벡터 DB)]
+    subgraph GH[GitHub 공식 MCP 서버]
+        G1[search_issues]
+        G2[issue_read]
+        G3[issue_write]
+    end
+
+    T1 --> RB[rag_basic.retrieve] --> DB[(Chroma<br/>벡터 DB)]
     T2 --> F[data/fastapi_docs/*.md]
 
     CD[Claude Desktop] -. 같은 서버 재사용 .-> S
@@ -40,11 +64,12 @@ flowchart LR
 | 계층 | 파일 | 역할 |
 |---|---|---|
 | **RAG** | `rag_basic.py` | 문서 청킹 → 임베딩 → Chroma 저장 → 유사도 검색 |
-| **MCP** | `mcp_server.py` | RAG 검색을 표준 도구(Tool)와 리소스(Resource)로 노출 |
-| **Agent** | `agent.py` | Claude가 도구 사용을 스스로 판단하는 ReAct 루프 (생각 → 행동 → 관찰 → 반복) |
+| **MCP 서버** | `mcp_server.py` | RAG 검색을 표준 도구(Tool)와 리소스(Resource)로 노출 |
+| **Agent** | `agent.py` | 여러 MCP 서버에 연결하고, Claude가 도구 사용을 스스로 판단하는 ReAct 루프 실행. 쓰기 작업은 사람 승인 |
+| **외부 MCP** | GitHub 원격 서버 | 이슈 검색·조회·작성 (직접 구현하지 않고 공개 서버 재사용) |
 
 핵심 설계 원칙: **각 계층은 아래 계층을 수정하지 않고 감싸기만 합니다.**
-2단계에서 만든 MCP 서버는 Claude Desktop과 직접 만든 에이전트(3단계) 양쪽에서 코드 수정 없이 그대로 재사용됩니다.
+2단계에서 만든 MCP 서버는 Claude Desktop, 직접 만든 에이전트(3·4단계) 어디서든 코드 수정 없이 그대로 재사용됩니다.
 
 ---
 
@@ -57,7 +82,8 @@ flowchart LR
 | 벡터 DB | Chroma (로컬) | 별도 서버 없이 파일로 저장, 기본 임베딩 모델 내장 |
 | 임베딩 | all-MiniLM-L6-v2 (Chroma 기본) | API 키 없이 로컬에서 임베딩 |
 | LLM | Claude API (Anthropic SDK) | Tool Use 지원 |
-| 프로토콜 | MCP Python SDK 2.x (`MCPServer`) | 공식 SDK |
+| 프로토콜 | MCP Python SDK 2.x (`MCPServer`) | 공식 SDK. 서버(stdio)와 클라이언트(stdio·HTTP) 모두 사용 |
+| 외부 도구 | GitHub MCP Server (원격) | Docker 없이 토큰만으로 연결, 헤더로 노출 도구 제한 가능 |
 
 ---
 
@@ -67,10 +93,10 @@ flowchart LR
 rag-portfolio/
 ├── rag_basic.py       # 1단계: RAG 파이프라인 (index / search / ask)
 ├── mcp_server.py      # 2단계: MCP 서버 (search_docs, read_doc, docs://stats)
-├── agent.py           # 3단계: 에이전트 루프 + MCP 클라이언트
+├── agent.py           # 3·4단계: 다중 MCP 서버 에이전트 + 사람 승인
 ├── data/fastapi_docs/ # FastAPI 영문 문서 (git 제외)
 ├── chroma_db/         # 벡터 DB 저장소 (git 제외)
-├── .env               # ANTHROPIC_API_KEY (git 제외)
+├── .env               # API 키, 토큰 (git 제외)
 └── pyproject.toml
 ```
 
@@ -81,7 +107,6 @@ rag-portfolio/
 ### 1. 환경 구성
 
 ```bash
-# uv 설치 후
 uv sync
 
 # 학습 데이터: FastAPI 영문 문서
@@ -90,11 +115,18 @@ cp -r tmp_fastapi/docs/en/docs data/fastapi_docs   # Windows: Copy-Item -Recurse
 rm -rf tmp_fastapi
 ```
 
-프로젝트 최상위에 `.env` 파일을 **UTF-8**로 만들고 API 키를 넣습니다.
+프로젝트 최상위에 `.env` 파일을 **UTF-8**로 만듭니다.
 
 ```
 ANTHROPIC_API_KEY=sk-ant-...
+GITHUB_TOKEN=github_pat_...               # 선택: 없으면 문서 검색만 사용
+GITHUB_SANDBOX_REPO=<GitHub ID>/agent-sandbox   # 선택: 없으면 GitHub 읽기 전용
 ```
+
+**GitHub 토큰 (Fine-grained, 최소 권한):**
+- Repository access: **Only select repositories** → 테스트용 저장소(`agent-sandbox`)만
+- Permissions: **Issues → Read and write**
+- 공개 저장소(`fastapi/fastapi`)의 이슈 검색은 읽기라 이 토큰으로도 가능
 
 ### 2. 1단계 — 기본 RAG
 
@@ -110,25 +142,31 @@ uv run rag_basic.py ask "How do I run background tasks after returning a respons
 uv run mcp dev mcp_server.py    # MCP Inspector로 도구 테스트 (Node.js 필요)
 ```
 
-Claude Desktop 연결 (`설정 → 개발자 → 설정 편집`, 기존 내용은 유지하고 `mcpServers`만 추가):
+Claude Desktop 연결 (`설정 → 개발자 → 설정 편집`, **앱을 완전히 종료한 뒤**, 기존 내용은 유지하고 `mcpServers`만 추가):
 
 ```json
 {
   "mcpServers": {
     "fastapi-docs": {
       "command": "C:\\Users\\<사용자>\\.local\\bin\\uv.exe",
-      "args": ["--directory", "E:\\Workplace\\rag-portfolio", "run", "mcp_server.py"]
+      "args": ["--directory", "<프로젝트 절대경로>", "run", "mcp_server.py"]
     }
   }
 }
 ```
 
-### 4. 3단계 — 직접 구현한 에이전트
+### 4. 3·4단계 — 에이전트
 
 ```bash
-uv run agent.py "How do I run background tasks after returning a response?"
-uv run agent.py      # 대화 모드
+uv run agent.py "질문"   # 질문 1개
+uv run agent.py          # 대화 모드
 ```
+
+| `.env` 설정 | 연결되는 도구 |
+|---|---|
+| `GITHUB_TOKEN` 없음 | `search_docs`, `read_doc` (3단계와 동일) |
+| `GITHUB_TOKEN`만 | + `search_issues`, `issue_read` (읽기 전용) |
+| `GITHUB_TOKEN` + `GITHUB_SANDBOX_REPO` | + `issue_write` (사람 승인 필요) |
 
 ---
 
@@ -162,32 +200,57 @@ uv run agent.py      # 대화 모드
 
 ```python
 while turn < MAX_TURNS:
-    resp = claude(messages, tools)                  # 생각
+    resp = claude(messages, tools)                   # 생각
     if resp.stop_reason != "tool_use":
         return 최종 답변
     for 도구 요청 in resp:
-        result = mcp_session.call_tool(...)         # 행동
+        result = mcp_session.call_tool(...)          # 행동
         tool_results.append(tool_result(id, result)) # 관찰
-    messages += [assistant 응답, tool_results]      # 반복
+    messages += [assistant 응답, tool_results]       # 반복
 ```
 
 - **MCP 도구 → Claude Tool 형식 변환:** 이름·설명·JSON 스키마 구조가 거의 같아 몇 줄로 변환
 - **`tool_use_id`로 요청-결과 짝 맞추기:** 한 turn에 여러 도구를 동시에 요청할 수 있음
 - **대화 기록 = 단기 기억:** LLM은 상태가 없으므로 매 turn마다 전체 `messages`를 다시 전송
-- **안전장치:** 최대 반복 횟수(`MAX_TURNS = 6`), 도구 실행 실패도 `is_error`로 Claude에게 전달해 스스로 대처하게 함
+- **안전장치:** 최대 반복 횟수, 도구 실행 실패도 `is_error`로 Claude에게 전달해 스스로 대처하게 함
 - **turn별 로그:** `stop_reason`, 도구 호출 인자, 결과 요약을 출력해 판단 과정을 관찰
+
+### 4단계: 외부 MCP 서버 연동 + Human-in-the-loop (`agent.py`)
+
+**여러 서버 연결과 도구 라우팅**
+- 내 서버는 **stdio**(하위 프로세스로 직접 실행), GitHub 서버는 **Streamable HTTP**(원격 서버에 `Authorization: Bearer` 토큰으로 접속)
+- `도구 이름 → (서버, 세션)` 등록부를 만들어, Claude가 요청한 도구를 해당 서버로 전달. 서로 다른 서버에 같은 이름의 도구가 있으면 시작 시 오류로 차단
+- 에이전트 루프 자체는 3단계와 동일. 서버가 늘어도 루프는 바뀌지 않음
+
+**도구 노출 최소화**
+- GitHub 서버는 도구가 수십 개 → 필요한 3개(`search_issues`, `issue_read`, `issue_write`)만 사용
+- 서버 쪽(`X-MCP-Toolsets`, `X-MCP-Tools`, `X-MCP-Readonly` 헤더)과 클라이언트 쪽(허용 목록)에서 **두 번** 거름. 도구가 많을수록 LLM의 선택 정확도가 떨어지고 토큰도 낭비됨
+
+**안전장치: 프롬프트가 아니라 코드에**
+
+| 상황 | 동작 |
+|---|---|
+| 허용된 테스트 저장소가 아닌 곳에 쓰기 시도 | 사람에게 묻지도 않고 **차단** |
+| 테스트 저장소에 쓰기 시도 | 제목·본문을 보여 주고 **`y` 입력 시에만 실행** |
+| `GITHUB_SANDBOX_REPO` 미설정 | 쓰기 도구를 아예 받지 않음 (읽기 전용) |
+| Claude가 존재하지 않는 도구를 요청 | 오류 결과와 사용 가능한 도구 목록을 돌려줌 |
+| 승인 후 실행 성공 | 결과에 `[Approved by the user and executed]`를 붙여 Claude가 승인 사실을 알게 함 |
+
+- **최소 권한:** 토큰 권한(테스트 저장소의 Issues만), 노출 도구, 쓰기 대상 저장소를 각각 따로 제한
 
 ---
 
-## 실행 결과 비교
+## 실행 결과
+
+### 1단계(고정 파이프라인) vs 3단계(에이전트)
 
 질문: *"How do I run background tasks after returning a response?"*
 
-| | 1단계 (고정 파이프라인) | 3단계 (에이전트) |
+| | 1단계 | 3단계 |
 |---|---|---|
 | 검색 여부 결정 | 코드가 결정 (항상 1회) | Claude가 결정 |
 | 도구 호출 | `retrieve` 1회 | `search_docs` → `read_doc` (스스로 원문 추가 조회) |
-| LLM 호출 | 1회 | 3회 (turn 1~3) |
+| LLM 호출 | 1회 | 3회 |
 | 답변 범위 | 기본 사용법 | 기본 사용법 + dependency 연동, `BackgroundTask`와의 차이, Celery 비교, `yield` dependency 주의사항 |
 
 ```
@@ -198,6 +261,33 @@ while turn < MAX_TURNS:
 [turn 3] stop_reason = end_turn
 ```
 
+### 4단계 시나리오 테스트
+
+| # | 요청 | 에이전트의 행동 | 확인한 것 |
+|---|---|---|---|
+| 1 | "yield dependency 버그를 정리해서 이슈 초안을 써줘" (구체적 내용 없음) | 문서 검색 2회 + 이슈 검색 1회를 **한 turn에 병렬 호출** → 정보 부족을 이유로 작성 보류, 필요한 정보(증상·재현 코드·환경)를 되물음 | 근거 없이 지어내지 않음 |
+| 2 | 증상·환경을 주고 다시 이슈 작성 요청 | 문서의 Breaking Changes와 실제 이슈 [#14988](https://github.com/fastapi/fastapi/issues/14988)을 근거로 **"버그가 아니라 의도된 동작"**이라 판단 → 이슈를 쓰지 않고 해결법 제시 | 로컬 문서(RAG) + 외부 데이터(GitHub MCP) 결합 판단 |
+| 3 | "무조건 작성해" + 제목·본문 지정 | 바로 `issue_write` 호출 → 승인 창 → `y` 입력 후 테스트 저장소에 이슈 생성 | Human-in-the-loop, 허용 저장소 제한 |
+
+```
+[turn 1] stop_reason = tool_use
+[tool_use] github.issue_write({"method": "create", "owner": "<id>", "repo": "agent-sandbox", "title": "[Test] ...", ...})
+
+============================================================
+🛑 승인 요청: issue_write  →  <id>/agent-sandbox
+제목: [Test] FastAPI 의존성 주입 엔진의 비정상적 메모리 누수 현상
+------------------------------------------------------------
+...
+============================================================
+이대로 실행할까요? [y/N] y
+[result] {"id":"...","url":"https://github.com/<id>/agent-sandbox/issues/1"}
+[turn 2] stop_reason = end_turn
+```
+
+> **시나리오 3의 의미:** "무조건 하라"는 압박에 LLM은 따랐지만, 실행 여부는 코드가 통제했습니다.
+> 같은 요청을 `fastapi/fastapi` 대상으로 했다면 LLM이 따르더라도 `check_write()`가 차단합니다.
+> **에이전트의 안전은 LLM의 판단이 아니라 코드의 가드레일로 보장해야 한다**는 설계 원칙을 확인한 사례입니다.
+
 ---
 
 ## 트러블슈팅 기록
@@ -206,15 +296,19 @@ while turn < MAX_TURNS:
 |---|---|---|
 | `UnicodeDecodeError: byte 0xff` (`import chromadb`에서 발생) | PowerShell `echo > .env`가 파일을 UTF-16으로 저장. Chroma가 import 시점에 `.env`를 읽다 실패 | VS Code에서 UTF-8로 다시 저장. `.gitignore`도 같은 문제로 동작하지 않던 것을 함께 수정 |
 | `DuplicateIDError` (인덱싱 800개에서 중단) | 청크 ID에 섹션 **제목**을 사용 → 한 문서에 같은 제목(`## Recap` 등)이 반복되면 ID 충돌 | 섹션 **순번**으로 ID 생성. 문서 갱신 시 덮어쓰기 vs 중복 저장을 결정하는 ID 설계 문제임을 확인 |
-| `No module named 'mcp.server.fastmcp'` | MCP Python SDK 2.x에서 `FastMCP`가 `MCPServer`로 이름 변경 | 2.x import를 우선 시도하고 1.x로 대체하는 호환 코드 작성 |
+| `No module named 'mcp.server.fastmcp'` | MCP Python SDK 2.x에서 `FastMCP`가 `MCPServer`로 이름 변경 (HTTP 클라이언트 함수명도 변경) | 2.x API를 우선 사용하고 1.x로 대체하는 호환 코드 작성 |
 | Claude Desktop 설정이 롤백됨 | 앱 실행 중에 설정 파일의 기존 내용(`preferences`)을 지우고 저장 → 앱이 메모리 상태로 덮어씀 | 앱 완전 종료 후 기존 내용을 유지한 채 `mcpServers`만 추가 |
 | Claude Desktop `spawn ... ENOENT` / `uvx` 오류 | 실제와 다른 사용자 폴더 경로, `uvx`는 스크립트 실행 불가 | `where.exe uv`로 확인한 실제 경로와 `uv run` 사용. 로그는 `%APPDATA%\Claude\logs\mcp-server-*.log` |
+| 에이전트가 `KeyError`로 종료 (테스트 중 발견) | LLM이 등록되지 않은 도구(읽기 전용 모드의 `issue_write` 등)를 요청 | 알 수 없는 도구는 오류 결과와 사용 가능 목록을 돌려주도록 처리 |
+| 승인 후 생성됐는데 Claude가 "승인 후 생성될 예정"이라고 답변 | 승인은 클라이언트 코드에서만 일어나고, Claude는 `tool_result`에 적힌 것만 앎 | 실행 결과에 승인 사실을 명시해 전달 |
 
 ---
 
 ## 발견한 한계와 개선 계획
 
 - [ ] **예제 코드 누락:** FastAPI 문서는 예제를 `{* ../../docs_src/... *}` 참조로 불러옴 → 인덱스에 실제 코드가 없어 에이전트가 근거 없이 코드를 구성. 인덱싱 시 참조를 실제 코드로 치환 예정
+- [ ] **생성 코드 검증:** 에이전트가 구성한 예시 코드(예: async SQLAlchemy의 `commit()` 후 속성 접근)는 문서 근거가 없어 별도 검증 필요
+- [ ] **도구 결과 축약:** `search_issues`가 이슈 본문 전체가 담긴 JSON을 반환 → 제목·URL·상태만 추려 토큰 절약
 - [ ] **노이즈 문서:** 사용법 질문에 `release-notes.md`가 상위에 검색됨 → 메타데이터 필터링 또는 리랭킹 적용
 - [ ] **섹션 제목 정리:** `{ #recap }` 같은 앵커 표기 제거
 - [ ] **관련도 기준선:** 무관한 질문의 distance 분포를 측정해 "근거 없음" 판단 기준 설정
@@ -228,6 +322,6 @@ while turn < MAX_TURNS:
 - [x] **1단계** 기본 RAG
 - [x] **2단계** RAG를 MCP 서버로 감싸고 Claude Desktop 연결
 - [x] **3단계** 프레임워크 없이 에이전트 루프 직접 구현
-- [ ] **4단계** 외부 MCP 서버(GitHub) 추가 — 문서에 답이 없으면 이슈 검색, 이슈 초안 작성 후 **사람 승인(Human-in-the-loop)** 뒤 등록
-- [ ] **5단계** 고도화 — 하이브리드 검색(BM25 + 벡터), 리랭킹, 다국어 임베딩
+- [x] **4단계** 외부 MCP 서버(GitHub) 연동, 사람 승인(Human-in-the-loop), 최소 권한
+- [ ] **5단계** 고도화 — 예제 코드 치환, 하이브리드 검색(BM25 + 벡터), 리랭킹, 도구 결과 축약
 - [ ] **6단계** 평가와 문서화
