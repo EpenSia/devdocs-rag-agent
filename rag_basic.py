@@ -45,8 +45,24 @@ RRF_K = 60  # RRF 상수: 순위가 낮은 결과의 영향력을 완만하게 �
 SEARCH_MODE = os.getenv("SEARCH_MODE", "hybrid")  # 6단계 평가 결과로 정함: vector / bm25 / hybrid
 
 
+def _ensure_sqlite() -> None:
+    """Chroma는 SQLite 3.35 이상이 필요하다. 클라우드 환경의 SQLite가 낮으면,
+    pysqlite3-binary가 설치돼 있을 때 그것으로 바꿔 끼운다 (7단계: 웹 배포 대비)."""
+    import sqlite3
+
+    if tuple(int(x) for x in sqlite3.sqlite_version.split(".")[:3]) >= (3, 35, 0):
+        return
+    try:
+        import pysqlite3  # noqa: F401
+
+        sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+    except ImportError:
+        pass  # 없으면 Chroma가 원래의 오류 메시지를 보여 줌
+
+
 @lru_cache(maxsize=1)  # DB 연결은 한 번만 만들고 재사용
 def get_collection():
+    _ensure_sqlite()
     import chromadb  # 지연 import: 무거운 라이브러리를 실제로 쓸 때만 불러옴
 
     client = chromadb.PersistentClient(path=DB_DIR)

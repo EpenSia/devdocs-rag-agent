@@ -14,6 +14,8 @@
   GITHUB_TOKEN=github_pat_...                    # 없으면 문서 검색만으로 동작 (3단계와 동일)
   GITHUB_SANDBOX_REPO=내아이디/agent-sandbox      # 없으면 GitHub 읽기 전용 모드
 
+  DEMO_MODE=1                                    # 7단계 웹 데모용: GitHub는 읽기만, 이슈 작성은 초안(드라이런)
+
 사용법:
   uv run agent.py "질문"
   uv run agent.py            # 대화 모드
@@ -43,6 +45,9 @@ MAX_TOKENS = 4096  # 답변 최대 길이 (6단계: 2048에서는 read_doc 후 �
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_MCP_URL = os.getenv("GITHUB_MCP_URL", "https://api.githubcopilot.com/mcp/")
 SANDBOX_REPO = os.getenv("GITHUB_SANDBOX_REPO", "").strip().lower()  # 예: "myid/agent-sandbox"
+# 7단계: 공개 웹 데모 모드. GitHub 서버에는 읽기 전용으로만 접속하고,
+# 이슈 작성(issue_write)은 앱이 가로채 '승인 대기 초안'으로만 보여 준다 (실제 등록 없음)
+DEMO_MODE = os.getenv("DEMO_MODE", "").strip() in {"1", "true", "yes"}
 
 # GitHub 서버는 도구가 수십 개라, 필요한 것만 노출한다 (도구가 많을수록 LLM이 헷갈리고 토큰도 낭비)
 GITHUB_TOOLS = ["search_issues", "issue_read", "issue_write"]
@@ -51,6 +56,28 @@ WRITE_TOOLS = {"issue_write"}
 
 OUTSIDE_DOCS_TITLE = "문서 외 참고"  # 검색 결과에 없는 일반 지식을 모아 두는 섹션 제목 (평가 스크립트도 사용)
 
+DEMO_NOTE = ("\n   (Public demo: issue_write only creates a draft shown to the user for approval. "
+             "Nothing is posted to GitHub. Say that the draft is ready for review.)") if DEMO_MODE else ""
+
+# 데모 모드에서 Claude에게 보여 줄 '가상' 쓰기 도구. 실제 GitHub 서버로는 절대 가지 않는다.
+DEMO_ISSUE_WRITE = {
+    "name": "issue_write",
+    "description": ("Create a GitHub issue DRAFT in the sandbox repository. A human reviews and approves it "
+                    "before anything is posted. Use only when the user asks for an issue."),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "owner": {"type": "string", "description": "Repository owner"},
+            "repo": {"type": "string", "description": "Repository name"},
+            "title": {"type": "string"},
+            "body": {"type": "string", "description": "Markdown body"},
+        },
+        "required": ["owner", "repo", "title", "body"],
+    },
+}
+DEMO_DRAFT_RESULT = ("[Demo mode] The draft was created and shown to the user for approval. "
+                     "It was NOT posted to GitHub. Tell the user the draft is ready for their review.")
+
 SYSTEM_PROMPT = f"""You are a FastAPI support agent.
 Workflow:
 1. Search the official docs first (search_docs, read_doc).
@@ -58,7 +85,7 @@ Workflow:
    with search_issues, e.g. query "repo:fastapi/fastapi is:issue <keywords>".
 3. Only if still unresolved AND the user asks for it, draft an issue with issue_write.
    Issues may ONLY be created in the sandbox repo: {SANDBOX_REPO or "(not configured - do not create issues)"}.
-   A human will review and approve the draft before it is created.
+   A human will review and approve the draft before it is created.{DEMO_NOTE}
 
 Grounding rules (6단계: 근거 밖 보충을 줄이기 위해 추가):
 - The main answer must contain ONLY information found in tool results.
@@ -145,15 +172,20 @@ async def open_http(url: str, headers: dict):
 
 
 # ── 사람 승인 + 안전 규칙 ─────────────────────────────────
-def check_write(name: str, args: dict) -> str | None:
-    """쓰기 도구 실행 전 검사. 막아야 하면 이유(str)를, 통과하면 None을 반환."""
+def write_guard(args: dict) -> str | None:
+    """규칙 1: 내 테스트 저장소 외에는 절대 쓰지 않음 (사람에게 묻지도 않음). 막아야 하면 이유를 반환."""
     target = f"{args.get('owner', '')}/{args.get('repo', '')}".lower()
     if not SANDBOX_REPO:
         return "Write tools are disabled (GITHUB_SANDBOX_REPO not set)."
-    if target != SANDBOX_REPO:  # 규칙 1: 내 테스트 저장소 외에는 절대 쓰지 않음 (사람에게 묻지도 않음)
+    if target != SANDBOX_REPO:
         return f"Blocked: writing to '{target}' is not allowed. Only '{SANDBOX_REPO}'."
+    return None
 
-    # 규칙 2: 사람이 내용을 보고 승인해야만 실행
+
+def console_approve(name: str, args: dict) -> str | None:
+    """규칙 2 (CLI용): 사람이 터미널에서 내용을 보고 승인해야만 실행. 거절하면 이유를 반환.
+    (7단계: 웹에서는 다른 승인 방식을 쓰도록 run_agent에 함수로 넘길 수 있게 분리)"""
+    target = f"{args.get('owner', '')}/{args.get('repo', '')}".lower()
     print("\n" + "=" * 60)
     print(f"🛑 승인 요청: {name}  →  {target}")
     print(f"제목: {args.get('title', '')}")
@@ -167,18 +199,24 @@ def check_write(name: str, args: dict) -> str | None:
 
 # ── 에이전트 루프 (3단계와 동일 + 도구 라우팅 + 승인) ─────────
 async def run_agent(question: str, registry: dict, tools: list[dict], llm,
-                    trace: dict | None = None) -> str:
-    """trace에 dict를 넘기면 실행 기록(턴 수, 도구 호출, 도구 결과, 토큰, 시간)을 채워 준다 (6단계 평가용)."""
+                    trace: dict | None = None, on_event=None, approve=None) -> str:
+    """trace에 dict를 넘기면 실행 기록(턴 수, 도구 호출, 도구 결과, 토큰, 시간)을 채워 준다 (6단계 평가용).
+    on_event: 진행 상황을 dict로 받는 함수 (7단계 웹 화면의 실시간 표시용)
+    approve:  쓰기 도구 승인 함수 (기본은 터미널 y/N). 거절 시 이유 문자열을 반환."""
     messages = [{"role": "user", "content": question}]
     t = trace if trace is not None else {}
     t.update(turns=0, tool_calls=[], tool_results=[], input_tokens=0, output_tokens=0,
-             truncated=False, language_fixed=False)
+             truncated=False, language_fixed=False, drafts=[])
+    approve = approve or console_approve
+    emit = on_event or (lambda event: None)
     started = time.perf_counter()
 
     for turn in range(1, MAX_TURNS + 1):
-        resp = llm.messages.create(
-            model=MODEL, max_tokens=MAX_TOKENS, system=SYSTEM_PROMPT,
-            tools=tools, messages=messages,
+        emit({"type": "thinking", "turn": turn})
+        # Claude API 호출은 응답을 기다리는 동안 다른 작업을 막지 않도록 별도 스레드에서 실행 (웹 동시 사용 대비)
+        resp = await asyncio.to_thread(
+            llm.messages.create,
+            model=MODEL, max_tokens=MAX_TOKENS, system=SYSTEM_PROMPT, tools=tools, messages=messages,
         )
         log(f"turn {turn}", f"stop_reason = {resp.stop_reason}")
         messages.append({"role": "assistant", "content": resp.content})
@@ -193,6 +231,7 @@ async def run_agent(question: str, registry: dict, tools: list[dict], llm,
             # 언어 가드레일: 프롬프트로 지시해도 가끔 중국어·일본어가 섞임 → 코드로 검사하고 한 번만 다시 쓰게 함
             if not is_korean(answer) and not t["language_fixed"] and turn < MAX_TURNS:
                 log("warn", "답변이 한국어가 아니어서 다시 쓰도록 요청합니다")
+                emit({"type": "warn", "text": "답변이 한국어가 아니어서 다시 쓰도록 요청했습니다"})
                 t["language_fixed"] = True
                 messages.append({"role": "user", "content": REWRITE_IN_KOREAN})
                 continue
@@ -206,20 +245,32 @@ async def run_agent(question: str, registry: dict, tools: list[dict], llm,
         for block in resp.content:
             if block.type == "text" and block.text.strip():
                 log("think", short(block.text))
+                emit({"type": "think", "text": block.text.strip()})
             if block.type != "tool_use":
                 continue
 
             server, session = registry.get(block.name, ("?", None))  # 이 도구를 가진 서버로 보낸다
             log("tool_use", f"{server}.{block.name}({short(json.dumps(block.input, ensure_ascii=False), 200)})")
+            emit({"type": "tool_use", "server": server, "name": block.name, "input": block.input})
 
-            if session is None:  # LLM이 없는 도구를 지어내 요청한 경우
-                blocked = f"Unknown tool '{block.name}'. Available: {list(registry)}"
-            elif block.name in WRITE_TOOLS:
-                blocked = check_write(block.name, block.input)
+            drafted = False
+            if block.name in WRITE_TOOLS:
+                # 규칙 1(저장소 제한)은 데모든 CLI든 항상 먼저 적용
+                blocked = write_guard(block.input)
+                if not blocked and DEMO_MODE:  # 웹 데모: 실행하지 않고 승인 대기 초안으로만 기록
+                    t["drafts"].append(dict(block.input))
+                    emit({"type": "draft", "args": dict(block.input)})
+                    drafted = True
+                elif not blocked and session is not None:
+                    blocked = approve(block.name, block.input)  # 규칙 2: 사람 승인
             else:
                 blocked = None
+            if not drafted and not blocked and session is None:  # LLM이 없는 도구를 지어내 요청한 경우
+                blocked = f"Unknown tool '{block.name}'. Available: {list(registry)}"
 
-            if blocked:
+            if drafted:
+                text, is_error = DEMO_DRAFT_RESULT, False
+            elif blocked:
                 text, is_error = blocked, True
             else:
                 try:
@@ -236,6 +287,7 @@ async def run_agent(question: str, registry: dict, tools: list[dict], llm,
                     text, is_error = f"Tool error: {e}", True
 
             log("result", ("❌ " if is_error else "") + short(text))
+            emit({"type": "tool_result", "name": block.name, "text": text, "is_error": is_error})
             t["tool_calls"].append({"name": block.name, "input": block.input})
             t["tool_results"].append(text)
             tool_results.append({
@@ -272,21 +324,28 @@ async def connect_servers(stack: AsyncExitStack) -> tuple[dict, list[dict]]:
     await add("fastapi-docs", *await stack.enter_async_context(stdio_client(docs)))
 
     # 서버 2: GitHub 공식 원격 서버 (HTTP)
+    can_write = bool(SANDBOX_REPO) and not DEMO_MODE  # 데모에서는 GitHub 쓰기 권한 자체를 받지 않음
     if GITHUB_TOKEN:
         headers = {
             "Authorization": f"Bearer {GITHUB_TOKEN}",
             "X-MCP-Toolsets": "issues",
             "X-MCP-Tools": ",".join(GITHUB_TOOLS),  # 서버 쪽에서도 도구 제한
         }
-        if not SANDBOX_REPO:
-            headers["X-MCP-Readonly"] = "true"  # 쓰기 대상이 없으면 읽기 도구만 받음
+        if not can_write:
+            headers["X-MCP-Readonly"] = "true"  # 쓰기 대상이 없거나 데모면 읽기 도구만 받음
         read, write = await stack.enter_async_context(open_http(GITHUB_MCP_URL, headers))
-        allow = GITHUB_TOOLS if SANDBOX_REPO else [t for t in GITHUB_TOOLS if t not in WRITE_TOOLS]
+        allow = GITHUB_TOOLS if can_write else [t for t in GITHUB_TOOLS if t not in WRITE_TOOLS]
         await add("github", read, write, allow=allow)  # 클라이언트 쪽에서도 한 번 더 거름
-        if not SANDBOX_REPO:
-            log("mcp", "GITHUB_SANDBOX_REPO 미설정 → GitHub 읽기 전용 모드")
+        if not can_write:
+            log("mcp", "GitHub 읽기 전용 모드" + (" (데모)" if DEMO_MODE else " (GITHUB_SANDBOX_REPO 미설정)"))
     else:
         log("mcp", "GITHUB_TOKEN 미설정 → 문서 검색만 사용")
+
+    # 데모 모드: 승인 흐름을 보여 주기 위한 가상 쓰기 도구 (세션 없음 = 실제 서버로 갈 수 없음)
+    if DEMO_MODE and SANDBOX_REPO and "issue_write" not in registry:
+        registry["issue_write"] = ("demo", None)
+        tools.append(DEMO_ISSUE_WRITE)
+        log("mcp", "데모 모드: issue_write는 초안만 만들고 실제로 등록하지 않음")
 
     return registry, tools
 

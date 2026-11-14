@@ -1,0 +1,9 @@
+# 7단계 웹 데모 화면 설정
+[theme]
+primaryColor = "#009485"   # FastAPI 문서의 청록색 계열
+
+[client]
+toolbarMode = "minimal"    # 방문자에게 개발자 메뉴를 숨김
+
+[browser]
+gatherUsageStats = false
