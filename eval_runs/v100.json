@@ -1,0 +1,3032 @@
+{
+ "vector": {
+  "metrics": {
+   "Hit@1": 0.7,
+   "Hit@5": 0.95,
+   "MRR": 0.8091666666666667,
+   "Noise": 0.084
+  },
+  "questions": [
+   {
+    "q": "How can I allow a frontend running on another domain to call my API?",
+    "rank": 2,
+    "top3": [
+     "first-steps.md",
+     "cors.md",
+     "frontend.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "How do I receive an uploaded file in an endpoint?",
+    "rank": 1,
+    "top3": [
+     "request-files.md",
+     "request-files.md",
+     "custom-response.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return a 404 error with a custom message when an item is not found",
+    "rank": 2,
+    "top3": [
+     "frontend.md",
+     "handling-errors.md",
+     "handling-errors.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Hash user passwords and issue JWT access tokens on login",
+    "rank": 1,
+    "top3": [
+     "oauth2-jwt.md",
+     "simple-oauth2.md",
+     "oauth2-scopes.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run setup code when the app starts and cleanup code when it shuts down",
+    "rank": 1,
+    "top3": [
+     "events.md",
+     "events.md",
+     "events.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Replace a dependency with a fake one during tests",
+    "rank": 1,
+    "top3": [
+     "testing-dependencies.md",
+     "testing-dependencies.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Split a large application into multiple files with routers",
+    "rank": 1,
+    "top3": [
+     "bigger-applications.md",
+     "bigger-applications.md",
+     "bigger-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Limit a query parameter string to a maximum length of 50 characters",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a cookie on the response",
+    "rank": 1,
+    "top3": [
+     "response-cookies.md",
+     "responses.md",
+     "response-cookies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve images and CSS files from a directory",
+    "rank": 1,
+    "top3": [
+     "static-files.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Load configuration from environment variables using Pydantic",
+    "rank": 1,
+    "top3": [
+     "settings.md",
+     "settings.md",
+     "body.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Real-time two-way communication between browser and server",
+    "rank": 2,
+    "top3": [
+     "https.md",
+     "websockets.md",
+     "server-sent-events.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Send a large file to the client in chunks with StreamingResponse",
+    "rank": 1,
+    "top3": [
+     "stream-data.md",
+     "stream-data.md",
+     "stream-data.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Add a header with the processing time of every request",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "background-tasks.md",
+     "handling-errors.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Partially update an item with a PATCH request",
+    "rank": 1,
+    "top3": [
+     "body-updates.md",
+     "sql-databases.md",
+     "body-updates.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Show an example request body in the interactive API docs",
+    "rank": 4,
+    "top3": [
+     "body.md",
+     "release-notes.md",
+     "body-multiple-params.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Use a class instead of a function as a dependency",
+    "rank": 1,
+    "top3": [
+     "classes-as-dependencies.md",
+     "classes-as-dependencies.md",
+     "dependencies-in-path-operation-decorators.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run the app with several worker processes in production",
+    "rank": 2,
+    "top3": [
+     "docker.md",
+     "server-workers.md",
+     "concepts.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Build a container image for a FastAPI application",
+    "rank": 1,
+    "top3": [
+     "docker.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Close the database session after the request finishes",
+    "rank": 3,
+    "top3": [
+     "release-notes.md",
+     "advanced-dependencies.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Store and query data in a SQL database with SQLModel",
+    "rank": 1,
+    "top3": [
+     "sql-databases.md",
+     "sql-databases.md",
+     "sql-databases.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Disable the /docs page in production",
+    "rank": 3,
+    "top3": [
+     "metadata.md",
+     "custom-docs-ui-assets.md",
+     "conditional-openapi.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Write tests for my API with pytest and TestClient",
+    "rank": 1,
+    "top3": [
+     "testing.md",
+     "testing.md",
+     "async-tests.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Mount another independent FastAPI app under a sub-path",
+    "rank": 2,
+    "top3": [
+     "behind-a-proxy.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Should I declare path operation functions with async def or normal def?",
+    "rank": 3,
+    "top3": [
+     "stream-data.md",
+     "index.md",
+     "async.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return status code 201 when an item is created",
+    "rank": 3,
+    "top3": [
+     "additional-status-codes.md",
+     "response-change-status-code.md",
+     "response-status-code.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Make sure the password field is not included in the response",
+    "rank": null,
+    "top3": [
+     "http-basic-auth.md",
+     "oauth2-jwt.md",
+     "general.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Do some work after the response has been sent",
+    "rank": 1,
+    "top3": [
+     "background-tasks.md",
+     "response-status-code.md",
+     "response-change-status-code.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Generate a TypeScript client from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "generate-clients.md",
+     "extending-openapi.md",
+     "generate-clients.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Protect an endpoint with HTTP Basic username and password",
+    "rank": 1,
+    "top3": [
+     "http-basic-auth.md",
+     "first-steps.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Accept the same header sent multiple times, like several X-Token values",
+    "rank": 1,
+    "top3": [
+     "header-params.md",
+     "release-notes.md",
+     "header-params.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Read a value the browser sends in a cookie",
+    "rank": 3,
+    "top3": [
+     "response-cookies.md",
+     "cookie-param-models.md",
+     "cookie-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Receive a username and password submitted from an HTML form",
+    "rank": null,
+    "top3": [
+     "http-basic-auth.md",
+     "simple-oauth2.md",
+     "get-current-user.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Upload a file together with some form fields in the same request",
+    "rank": 1,
+    "top3": [
+     "request-forms-and-files.md",
+     "request-form-models.md",
+     "request-files.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Upload several files at once in one request",
+    "rank": 1,
+    "top3": [
+     "request-files.md",
+     "request-files.md",
+     "request-forms-and-files.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Accept a list of tags as part of a JSON body model",
+    "rank": 1,
+    "top3": [
+     "body-nested-models.md",
+     "body-multiple-params.md",
+     "body-nested-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Put a model inside another model in the request body",
+    "rank": 1,
+    "top3": [
+     "body-nested-models.md",
+     "body-updates.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Receive two different Pydantic models in one request body",
+    "rank": null,
+    "top3": [
+     "body.md",
+     "body.md",
+     "body.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Force a single body parameter to be wrapped under its own key in the JSON",
+    "rank": 1,
+    "top3": [
+     "body-multiple-params.md",
+     "body-multiple-params.md",
+     "body-multiple-params.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Add a description and a maximum value check to a field inside a Pydantic model",
+    "rank": 2,
+    "top3": [
+     "schema-extra-example.md",
+     "body-fields.md",
+     "schema-extra-example.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Require an integer path parameter to be greater than zero",
+    "rank": 2,
+    "top3": [
+     "path-params.md",
+     "path-params-numeric-validations.md",
+     "path-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Restrict a path parameter to a fixed set of allowed values",
+    "rank": 1,
+    "top3": [
+     "path-params.md",
+     "path-params-numeric-validations.md",
+     "path-operation-configuration.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Capture a whole file path, including slashes, in a URL parameter",
+    "rank": 1,
+    "top3": [
+     "path-params.md",
+     "path-params.md",
+     "templates.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Make a query parameter optional with a default of None",
+    "rank": 2,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Receive a list of values for the same query parameter, like ?q=foo&q=bar",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Validate a query parameter with a regular expression",
+    "rank": 2,
+    "top3": [
+     "release-notes.md",
+     "query-params-str-validations.md",
+     "path-params-numeric-validations.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Group several query parameters into one Pydantic model",
+    "rank": 1,
+    "top3": [
+     "query-param-models.md",
+     "query-param-models.md",
+     "body.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Reject requests that include unknown query parameters",
+    "rank": 1,
+    "top3": [
+     "query-param-models.md",
+     "query-params.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Use UUID and datetime types for request parameters",
+    "rank": 1,
+    "top3": [
+     "extra-data-types.md",
+     "path-params-numeric-validations.md",
+     "query-param-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Convert a Pydantic model with datetime fields into something JSON-compatible to store in a database",
+    "rank": 1,
+    "top3": [
+     "encoder.md",
+     "release-notes.md",
+     "body-updates.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Have separate input, output and database models for a user",
+    "rank": 1,
+    "top3": [
+     "extra-models.md",
+     "get-current-user.md",
+     "sql-databases.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add tags, a summary and a description to an endpoint for the docs",
+    "rank": 1,
+    "top3": [
+     "path-operation-configuration.md",
+     "metadata.md",
+     "metadata.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mark an endpoint as deprecated in the documentation",
+    "rank": 3,
+    "top3": [
+     "general.md",
+     "release-notes.md",
+     "path-operation-configuration.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Set the API title, version and contact info shown in the docs",
+    "rank": 1,
+    "top3": [
+     "metadata.md",
+     "query-params-str-validations.md",
+     "index.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the URL where the Swagger UI documentation is served",
+    "rank": 1,
+    "top3": [
+     "metadata.md",
+     "index.md",
+     "index.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Register a handler for my own custom exception class",
+    "rank": 1,
+    "top3": [
+     "handling-errors.md",
+     "handling-errors.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Customize the response returned when request validation fails",
+    "rank": 2,
+    "top3": [
+     "custom-request-and-route.md",
+     "handling-errors.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Run the app from my IDE so I can use breakpoints",
+    "rank": 1,
+    "top3": [
+     "debugging.md",
+     "debugging.md",
+     "fastapi-cli.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "A dependency that itself depends on another dependency",
+    "rank": 3,
+    "top3": [
+     "classes-as-dependencies.md",
+     "dependencies.md",
+     "sub-dependencies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run a dependency for an endpoint without using its return value",
+    "rank": 1,
+    "top3": [
+     "dependencies-in-path-operation-decorators.md",
+     "dependencies-with-yield.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Apply one dependency to every endpoint in the whole application",
+    "rank": 1,
+    "top3": [
+     "global-dependencies.md",
+     "dependencies-in-path-operation-decorators.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Share common query parameters between endpoints with a reusable function",
+    "rank": null,
+    "top3": [
+     "query-param-models.md",
+     "sub-dependencies.md",
+     "body-multiple-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Get the currently logged in user inside an endpoint",
+    "rank": 1,
+    "top3": [
+     "get-current-user.md",
+     "get-current-user.md",
+     "get-current-user.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return an access token from a login endpoint using the OAuth2 password flow",
+    "rank": 2,
+    "top3": [
+     "first-steps.md",
+     "simple-oauth2.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Only allow tokens that have specific permissions like items:read",
+    "rank": 2,
+    "top3": [
+     "oauth2-jwt.md",
+     "oauth2-scopes.md",
+     "cors.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Document an extra 404 response with its own model in OpenAPI",
+    "rank": 1,
+    "top3": [
+     "additional-responses.md",
+     "custom-response.md",
+     "additional-responses.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return 201 in some cases and 200 in others from the same endpoint",
+    "rank": 3,
+    "top3": [
+     "response-change-status-code.md",
+     "response-status-code.md",
+     "additional-status-codes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Pass configuration when creating a dependency, like a checker for a fixed word",
+    "rank": 1,
+    "top3": [
+     "advanced-dependencies.md",
+     "settings.md",
+     "advanced-dependencies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Write async tests that call the app with an async HTTP client",
+    "rank": 1,
+    "top3": [
+     "async-tests.md",
+     "async-tests.md",
+     "async-tests.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "My app runs behind Nginx under a /api/v1 prefix and the docs page breaks",
+    "rank": 1,
+    "top3": [
+     "behind-a-proxy.md",
+     "behind-a-proxy.md",
+     "behind-a-proxy.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return an HTML page instead of JSON",
+    "rank": 2,
+    "top3": [
+     "response-directly.md",
+     "custom-response.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Redirect the client to another URL",
+    "rank": 2,
+    "top3": [
+     "https.md",
+     "custom-response.md",
+     "server-sent-events.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Use Python dataclasses instead of Pydantic models",
+    "rank": 1,
+    "top3": [
+     "dataclasses.md",
+     "dataclasses.md",
+     "dataclasses.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Compress responses with gzip",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "custom-request-and-route.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Redirect all HTTP requests to HTTPS",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "https.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Document the request my API will send to an external URL provided by the user",
+    "rank": 1,
+    "top3": [
+     "openapi-callbacks.md",
+     "openapi-callbacks.md",
+     "openapi-callbacks.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Describe webhook requests my app will send to users' servers",
+    "rank": 1,
+    "top3": [
+     "openapi-webhooks.md",
+     "openapi-webhooks.md",
+     "openapi-webhooks.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a custom operationId or hide an endpoint from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "path-operation-advanced-configuration.md",
+     "metadata.md",
+     "path-operation-advanced-configuration.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the status code inside the function depending on whether the item already existed",
+    "rank": 2,
+    "top3": [
+     "additional-status-codes.md",
+     "response-change-status-code.md",
+     "response-status-code.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a custom header to the response",
+    "rank": 1,
+    "top3": [
+     "response-headers.md",
+     "handling-errors.md",
+     "response-headers.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return a raw XML response",
+    "rank": 1,
+    "top3": [
+     "response-directly.md",
+     "custom-response.md",
+     "custom-response.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Render Jinja2 HTML templates",
+    "rank": 1,
+    "top3": [
+     "templates.md",
+     "templating.md",
+     "templates.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Test startup and shutdown logic",
+    "rank": 1,
+    "top3": [
+     "testing-events.md",
+     "events.md",
+     "events.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Test a websocket endpoint",
+    "rank": 1,
+    "top3": [
+     "testing-websockets.md",
+     "websockets.md",
+     "opentelemetry.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Get the client's IP address from the raw request",
+    "rank": 1,
+    "top3": [
+     "using-request-directly.md",
+     "https.md",
+     "alternatives.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mount an existing Flask application inside FastAPI",
+    "rank": null,
+    "top3": [
+     "behind-a-proxy.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve the docs JavaScript and CSS myself instead of from a CDN",
+    "rank": 1,
+    "top3": [
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the Swagger UI syntax highlighting theme",
+    "rank": 1,
+    "top3": [
+     "configure-swagger-ui.md",
+     "configure-swagger-ui.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Decompress gzip request bodies with a custom route class",
+    "rank": 1,
+    "top3": [
+     "custom-request-and-route.md",
+     "custom-request-and-route.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a custom logo to the generated OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "extending-openapi.md",
+     "extending-openapi.md",
+     "extending-openapi.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use GraphQL with FastAPI",
+    "rank": 1,
+    "top3": [
+     "graphql.md",
+     "release-notes.md",
+     "release-notes.md"
+    ],
+    "noise": 0.6
+   },
+   {
+    "q": "Upgrade my app from Pydantic v1 to v2",
+    "rank": 1,
+    "top3": [
+     "migrate-from-pydantic-v1-to-pydantic-v2.md",
+     "release-notes.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Why are there separate -Input and -Output schemas in my OpenAPI docs?",
+    "rank": 1,
+    "top3": [
+     "separate-openapi-schemas.md",
+     "separate-openapi-schemas.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Get HTTPS certificates for my domain for free",
+    "rank": 1,
+    "top3": [
+     "https.md",
+     "https.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Pin the FastAPI version in my requirements",
+    "rank": 1,
+    "top3": [
+     "versions.md",
+     "dataclasses.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Start the server for production without auto-reload",
+    "rank": 1,
+    "top3": [
+     "manually.md",
+     "concepts.md",
+     "concepts.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Difference between fastapi dev and fastapi run",
+    "rank": 1,
+    "top3": [
+     "fastapi-cli.md",
+     "async.md",
+     "benchmarks.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Create an isolated Python environment for my project",
+    "rank": 2,
+    "top3": [
+     "first-steps.md",
+     "virtual-environments.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "What does Annotated mean in Python type hints?",
+    "rank": 1,
+    "top3": [
+     "python-types.md",
+     "python-types.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "How should I think about restarts and the number of processes when deploying?",
+    "rank": 1,
+    "top3": [
+     "concepts.md",
+     "manually.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   }
+  ]
+ },
+ "bm25": {
+  "metrics": {
+   "Hit@1": 0.58,
+   "Hit@5": 0.88,
+   "MRR": 0.6938333333333334,
+   "Noise": 0.068
+  },
+  "questions": [
+   {
+    "q": "How can I allow a frontend running on another domain to call my API?",
+    "rank": null,
+    "top3": [
+     "first-steps.md",
+     "first-steps.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "How do I receive an uploaded file in an endpoint?",
+    "rank": 1,
+    "top3": [
+     "request-files.md",
+     "request-forms-and-files.md",
+     "request-forms-and-files.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return a 404 error with a custom message when an item is not found",
+    "rank": 1,
+    "top3": [
+     "handling-errors.md",
+     "frontend.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Hash user passwords and issue JWT access tokens on login",
+    "rank": 1,
+    "top3": [
+     "oauth2-jwt.md",
+     "oauth2-jwt.md",
+     "extra-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run setup code when the app starts and cleanup code when it shuts down",
+    "rank": 1,
+    "top3": [
+     "events.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Replace a dependency with a fake one during tests",
+    "rank": 1,
+    "top3": [
+     "testing-dependencies.md",
+     "testing-dependencies.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Split a large application into multiple files with routers",
+    "rank": 2,
+    "top3": [
+     "stream-data.md",
+     "bigger-applications.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Limit a query parameter string to a maximum length of 50 characters",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a cookie on the response",
+    "rank": 1,
+    "top3": [
+     "response-cookies.md",
+     "cookie-param-models.md",
+     "response-change-status-code.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve images and CSS files from a directory",
+    "rank": 4,
+    "top3": [
+     "staticfiles.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Load configuration from environment variables using Pydantic",
+    "rank": 3,
+    "top3": [
+     "environment-variables.md",
+     "environment-variables.md",
+     "settings.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Real-time two-way communication between browser and server",
+    "rank": null,
+    "top3": [
+     "https.md",
+     "concepts.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Send a large file to the client in chunks with StreamingResponse",
+    "rank": 1,
+    "top3": [
+     "stream-data.md",
+     "stream-json-lines.md",
+     "request-files.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a header with the processing time of every request",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "async.md",
+     "settings.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Partially update an item with a PATCH request",
+    "rank": 1,
+    "top3": [
+     "body-updates.md",
+     "body-multiple-params.md",
+     "sql-databases.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Show an example request body in the interactive API docs",
+    "rank": null,
+    "top3": [
+     "body.md",
+     "query-params-str-validations.md",
+     "index.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use a class instead of a function as a dependency",
+    "rank": 1,
+    "top3": [
+     "classes-as-dependencies.md",
+     "advanced-dependencies.md",
+     "testing-dependencies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run the app with several worker processes in production",
+    "rank": null,
+    "top3": [
+     "concepts.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Build a container image for a FastAPI application",
+    "rank": 1,
+    "top3": [
+     "docker.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Close the database session after the request finishes",
+    "rank": 2,
+    "top3": [
+     "advanced-dependencies.md",
+     "dependencies-with-yield.md",
+     "release-notes.md"
+    ],
+    "noise": 0.6
+   },
+   {
+    "q": "Store and query data in a SQL database with SQLModel",
+    "rank": 1,
+    "top3": [
+     "sql-databases.md",
+     "sql-databases.md",
+     "testing-database.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Disable the /docs page in production",
+    "rank": 3,
+    "top3": [
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md",
+     "conditional-openapi.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Write tests for my API with pytest and TestClient",
+    "rank": 1,
+    "top3": [
+     "testing.md",
+     "async-tests.md",
+     "testing.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mount another independent FastAPI app under a sub-path",
+    "rank": 1,
+    "top3": [
+     "sub-applications.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Should I declare path operation functions with async def or normal def?",
+    "rank": 2,
+    "top3": [
+     "index.md",
+     "async.md",
+     "async.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return status code 201 when an item is created",
+    "rank": 3,
+    "top3": [
+     "response-change-status-code.md",
+     "additional-status-codes.md",
+     "response-status-code.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Make sure the password field is not included in the response",
+    "rank": 5,
+    "top3": [
+     "additional-responses.md",
+     "response-cookies.md",
+     "request-form-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Do some work after the response has been sent",
+    "rank": null,
+    "top3": [
+     "release-notes.md",
+     "advanced-dependencies.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Generate a TypeScript client from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "generate-clients.md",
+     "generate-clients.md",
+     "generate-clients.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Protect an endpoint with HTTP Basic username and password",
+    "rank": 1,
+    "top3": [
+     "http-basic-auth.md",
+     "http-basic-auth.md",
+     "oauth2-jwt.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Accept the same header sent multiple times, like several X-Token values",
+    "rank": 1,
+    "top3": [
+     "header-params.md",
+     "sub-dependencies.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Read a value the browser sends in a cookie",
+    "rank": null,
+    "top3": [
+     "server-sent-events.md",
+     "http-basic-auth.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Receive a username and password submitted from an HTML form",
+    "rank": 1,
+    "top3": [
+     "request-forms.md",
+     "simple-oauth2.md",
+     "http-basic-auth.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Upload a file together with some form fields in the same request",
+    "rank": 1,
+    "top3": [
+     "request-forms-and-files.md",
+     "request-forms-and-files.md",
+     "request-forms-and-files.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Upload several files at once in one request",
+    "rank": 2,
+    "top3": [
+     "concepts.md",
+     "request-files.md",
+     "request-forms-and-files.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Accept a list of tags as part of a JSON body model",
+    "rank": 1,
+    "top3": [
+     "body-nested-models.md",
+     "response-model.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Put a model inside another model in the request body",
+    "rank": null,
+    "top3": [
+     "additional-responses.md",
+     "body.md",
+     "body-multiple-params.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Receive two different Pydantic models in one request body",
+    "rank": null,
+    "top3": [
+     "custom-request-and-route.md",
+     "body.md",
+     "request-form-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Force a single body parameter to be wrapped under its own key in the JSON",
+    "rank": 1,
+    "top3": [
+     "body-multiple-params.md",
+     "body-multiple-params.md",
+     "body-multiple-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a description and a maximum value check to a field inside a Pydantic model",
+    "rank": 5,
+    "top3": [
+     "separate-openapi-schemas.md",
+     "separate-openapi-schemas.md",
+     "separate-openapi-schemas.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Require an integer path parameter to be greater than zero",
+    "rank": 1,
+    "top3": [
+     "path-params-numeric-validations.md",
+     "path-params-numeric-validations.md",
+     "path-params-numeric-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Restrict a path parameter to a fixed set of allowed values",
+    "rank": 5,
+    "top3": [
+     "query-params.md",
+     "response-model.md",
+     "advanced-dependencies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Capture a whole file path, including slashes, in a URL parameter",
+    "rank": 3,
+    "top3": [
+     "release-notes.md",
+     "request-files.md",
+     "path-params.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Make a query parameter optional with a default of None",
+    "rank": 4,
+    "top3": [
+     "query-param-models.md",
+     "cookie-param-models.md",
+     "header-param-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Receive a list of values for the same query parameter, like ?q=foo&q=bar",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "header-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Validate a query parameter with a regular expression",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "release-notes.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Group several query parameters into one Pydantic model",
+    "rank": 1,
+    "top3": [
+     "query-param-models.md",
+     "query-param-models.md",
+     "cookie-param-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Reject requests that include unknown query parameters",
+    "rank": 2,
+    "top3": [
+     "release-notes.md",
+     "query-param-models.md",
+     "query-params.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Use UUID and datetime types for request parameters",
+    "rank": 1,
+    "top3": [
+     "extra-data-types.md",
+     "response-directly.md",
+     "index.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Convert a Pydantic model with datetime fields into something JSON-compatible to store in a database",
+    "rank": 1,
+    "top3": [
+     "encoder.md",
+     "encoder.md",
+     "general.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Have separate input, output and database models for a user",
+    "rank": 4,
+    "top3": [
+     "separate-openapi-schemas.md",
+     "separate-openapi-schemas.md",
+     "separate-openapi-schemas.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add tags, a summary and a description to an endpoint for the docs",
+    "rank": 2,
+    "top3": [
+     "general.md",
+     "path-operation-configuration.md",
+     "metadata.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mark an endpoint as deprecated in the documentation",
+    "rank": 1,
+    "top3": [
+     "path-operation-configuration.md",
+     "release-notes.md",
+     "release-notes.md"
+    ],
+    "noise": 0.6
+   },
+   {
+    "q": "Set the API title, version and contact info shown in the docs",
+    "rank": 1,
+    "top3": [
+     "metadata.md",
+     "extending-openapi.md",
+     "general.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the URL where the Swagger UI documentation is served",
+    "rank": 1,
+    "top3": [
+     "metadata.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Register a handler for my own custom exception class",
+    "rank": 1,
+    "top3": [
+     "handling-errors.md",
+     "custom-request-and-route.md",
+     "handling-errors.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Customize the response returned when request validation fails",
+    "rank": null,
+    "top3": [
+     "opentelemetry.md",
+     "release-notes.md",
+     "custom-response.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Run the app from my IDE so I can use breakpoints",
+    "rank": 1,
+    "top3": [
+     "debugging.md",
+     "fastapi-cli.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "A dependency that itself depends on another dependency",
+    "rank": 1,
+    "top3": [
+     "sub-dependencies.md",
+     "advanced-dependencies.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run a dependency for an endpoint without using its return value",
+    "rank": 3,
+    "top3": [
+     "dependencies-with-yield.md",
+     "dependencies-with-yield.md",
+     "dependencies-in-path-operation-decorators.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Apply one dependency to every endpoint in the whole application",
+    "rank": 2,
+    "top3": [
+     "dependencies-in-path-operation-decorators.md",
+     "global-dependencies.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Share common query parameters between endpoints with a reusable function",
+    "rank": null,
+    "top3": [
+     "path-params-numeric-validations.md",
+     "header-params.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Get the currently logged in user inside an endpoint",
+    "rank": 5,
+    "top3": [
+     "oauth2-jwt.md",
+     "simple-oauth2.md",
+     "simple-oauth2.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return an access token from a login endpoint using the OAuth2 password flow",
+    "rank": 2,
+    "top3": [
+     "first-steps.md",
+     "simple-oauth2.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Only allow tokens that have specific permissions like items:read",
+    "rank": 2,
+    "top3": [
+     "cors.md",
+     "oauth2-scopes.md",
+     "simple-oauth2.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Document an extra 404 response with its own model in OpenAPI",
+    "rank": 1,
+    "top3": [
+     "additional-responses.md",
+     "header-param-models.md",
+     "custom-response.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return 201 in some cases and 200 in others from the same endpoint",
+    "rank": 3,
+    "top3": [
+     "response-change-status-code.md",
+     "response-status-code.md",
+     "additional-status-codes.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Pass configuration when creating a dependency, like a checker for a fixed word",
+    "rank": 1,
+    "top3": [
+     "advanced-dependencies.md",
+     "advanced-dependencies.md",
+     "advanced-dependencies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Write async tests that call the app with an async HTTP client",
+    "rank": 1,
+    "top3": [
+     "async-tests.md",
+     "testing.md",
+     "async-tests.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "My app runs behind Nginx under a /api/v1 prefix and the docs page breaks",
+    "rank": 1,
+    "top3": [
+     "behind-a-proxy.md",
+     "behind-a-proxy.md",
+     "behind-a-proxy.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return an HTML page instead of JSON",
+    "rank": null,
+    "top3": [
+     "frontend.md",
+     "frontend.md",
+     "encoder.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Redirect the client to another URL",
+    "rank": 1,
+    "top3": [
+     "custom-response.md",
+     "behind-a-proxy.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Use Python dataclasses instead of Pydantic models",
+    "rank": 1,
+    "top3": [
+     "dataclasses.md",
+     "dataclasses.md",
+     "dataclasses.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Compress responses with gzip",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "custom-request-and-route.md",
+     "middleware.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Redirect all HTTP requests to HTTPS",
+    "rank": 2,
+    "top3": [
+     "cors.md",
+     "middleware.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Document the request my API will send to an external URL provided by the user",
+    "rank": 1,
+    "top3": [
+     "openapi-callbacks.md",
+     "openapi-callbacks.md",
+     "openapi-callbacks.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Describe webhook requests my app will send to users' servers",
+    "rank": 1,
+    "top3": [
+     "openapi-webhooks.md",
+     "openapi-webhooks.md",
+     "openapi-webhooks.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a custom operationId or hide an endpoint from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "path-operation-advanced-configuration.md",
+     "extending-openapi.md",
+     "path-operation-advanced-configuration.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the status code inside the function depending on whether the item already existed",
+    "rank": 2,
+    "top3": [
+     "handling-errors.md",
+     "response-change-status-code.md",
+     "response-status-code.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Add a custom header to the response",
+    "rank": null,
+    "top3": [
+     "custom-request-and-route.md",
+     "stream-data.md",
+     "middleware.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Return a raw XML response",
+    "rank": 1,
+    "top3": [
+     "response-directly.md",
+     "release-notes.md",
+     "general.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Render Jinja2 HTML templates",
+    "rank": 1,
+    "top3": [
+     "templates.md",
+     "templates.md",
+     "templates.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Test startup and shutdown logic",
+    "rank": 4,
+    "top3": [
+     "events.md",
+     "events.md",
+     "events.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Test a websocket endpoint",
+    "rank": 2,
+    "top3": [
+     "opentelemetry.md",
+     "testing-websockets.md",
+     "websockets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Get the client's IP address from the raw request",
+    "rank": 1,
+    "top3": [
+     "using-request-directly.md",
+     "behind-a-proxy.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mount an existing Flask application inside FastAPI",
+    "rank": 1,
+    "top3": [
+     "wsgi.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve the docs JavaScript and CSS myself instead of from a CDN",
+    "rank": 1,
+    "top3": [
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the Swagger UI syntax highlighting theme",
+    "rank": 1,
+    "top3": [
+     "configure-swagger-ui.md",
+     "configure-swagger-ui.md",
+     "configure-swagger-ui.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Decompress gzip request bodies with a custom route class",
+    "rank": 1,
+    "top3": [
+     "custom-request-and-route.md",
+     "custom-request-and-route.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Add a custom logo to the generated OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "extending-openapi.md",
+     "extending-openapi.md",
+     "path-operation-advanced-configuration.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use GraphQL with FastAPI",
+    "rank": 1,
+    "top3": [
+     "graphql.md",
+     "graphql.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Upgrade my app from Pydantic v1 to v2",
+    "rank": 1,
+    "top3": [
+     "migrate-from-pydantic-v1-to-pydantic-v2.md",
+     "migrate-from-pydantic-v1-to-pydantic-v2.md",
+     "migrate-from-pydantic-v1-to-pydantic-v2.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Why are there separate -Input and -Output schemas in my OpenAPI docs?",
+    "rank": 1,
+    "top3": [
+     "separate-openapi-schemas.md",
+     "separate-openapi-schemas.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Get HTTPS certificates for my domain for free",
+    "rank": 1,
+    "top3": [
+     "https.md",
+     "https.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Pin the FastAPI version in my requirements",
+    "rank": 1,
+    "top3": [
+     "versions.md",
+     "versions.md",
+     "versions.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Start the server for production without auto-reload",
+    "rank": 2,
+    "top3": [
+     "index.md",
+     "fastapi-cli.md",
+     "fastapi-cli.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Difference between fastapi dev and fastapi run",
+    "rank": 3,
+    "top3": [
+     "alternatives.md",
+     "async.md",
+     "fastapi-cli.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Create an isolated Python environment for my project",
+    "rank": 1,
+    "top3": [
+     "virtual-environments.md",
+     "index.md",
+     "virtual-environments.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "What does Annotated mean in Python type hints?",
+    "rank": 2,
+    "top3": [
+     "query-params-str-validations.md",
+     "python-types.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "How should I think about restarts and the number of processes when deploying?",
+    "rank": 4,
+    "top3": [
+     "manually.md",
+     "docker.md",
+     "server-workers.md"
+    ],
+    "noise": 0.0
+   }
+  ]
+ },
+ "hybrid": {
+  "metrics": {
+   "Hit@1": 0.77,
+   "Hit@5": 0.96,
+   "MRR": 0.8393333333333334,
+   "Noise": 0.064
+  },
+  "questions": [
+   {
+    "q": "How can I allow a frontend running on another domain to call my API?",
+    "rank": 4,
+    "top3": [
+     "first-steps.md",
+     "frontend.md",
+     "strict-content-type.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "How do I receive an uploaded file in an endpoint?",
+    "rank": 1,
+    "top3": [
+     "request-files.md",
+     "request-files.md",
+     "request-forms-and-files.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return a 404 error with a custom message when an item is not found",
+    "rank": 2,
+    "top3": [
+     "frontend.md",
+     "handling-errors.md",
+     "handling-errors.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Hash user passwords and issue JWT access tokens on login",
+    "rank": 1,
+    "top3": [
+     "oauth2-jwt.md",
+     "oauth2-scopes.md",
+     "simple-oauth2.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run setup code when the app starts and cleanup code when it shuts down",
+    "rank": 1,
+    "top3": [
+     "events.md",
+     "events.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Replace a dependency with a fake one during tests",
+    "rank": 1,
+    "top3": [
+     "testing-dependencies.md",
+     "testing-dependencies.md",
+     "release-notes.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Split a large application into multiple files with routers",
+    "rank": 1,
+    "top3": [
+     "bigger-applications.md",
+     "bigger-applications.md",
+     "dependencies-in-path-operation-decorators.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Limit a query parameter string to a maximum length of 50 characters",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a cookie on the response",
+    "rank": 1,
+    "top3": [
+     "response-cookies.md",
+     "response-cookies.md",
+     "cookie-param-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve images and CSS files from a directory",
+    "rank": 1,
+    "top3": [
+     "static-files.md",
+     "custom-docs-ui-assets.md",
+     "staticfiles.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Load configuration from environment variables using Pydantic",
+    "rank": 1,
+    "top3": [
+     "settings.md",
+     "settings.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Real-time two-way communication between browser and server",
+    "rank": 5,
+    "top3": [
+     "https.md",
+     "cors.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Send a large file to the client in chunks with StreamingResponse",
+    "rank": 1,
+    "top3": [
+     "stream-data.md",
+     "stream-data.md",
+     "custom-response.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a header with the processing time of every request",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "custom-request-and-route.md",
+     "server-sent-events.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Partially update an item with a PATCH request",
+    "rank": 1,
+    "top3": [
+     "body-updates.md",
+     "sql-databases.md",
+     "versions.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Show an example request body in the interactive API docs",
+    "rank": null,
+    "top3": [
+     "body.md",
+     "index.md",
+     "index.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use a class instead of a function as a dependency",
+    "rank": 1,
+    "top3": [
+     "classes-as-dependencies.md",
+     "classes-as-dependencies.md",
+     "advanced-dependencies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Run the app with several worker processes in production",
+    "rank": 3,
+    "top3": [
+     "docker.md",
+     "docker.md",
+     "server-workers.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Build a container image for a FastAPI application",
+    "rank": 1,
+    "top3": [
+     "docker.md",
+     "docker.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Close the database session after the request finishes",
+    "rank": 3,
+    "top3": [
+     "advanced-dependencies.md",
+     "release-notes.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Store and query data in a SQL database with SQLModel",
+    "rank": 1,
+    "top3": [
+     "sql-databases.md",
+     "sql-databases.md",
+     "testing-database.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Disable the /docs page in production",
+    "rank": 4,
+    "top3": [
+     "custom-docs-ui-assets.md",
+     "metadata.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Write tests for my API with pytest and TestClient",
+    "rank": 1,
+    "top3": [
+     "testing.md",
+     "async-tests.md",
+     "testing.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Mount another independent FastAPI app under a sub-path",
+    "rank": 1,
+    "top3": [
+     "sub-applications.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Should I declare path operation functions with async def or normal def?",
+    "rank": 3,
+    "top3": [
+     "index.md",
+     "stream-data.md",
+     "async.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return status code 201 when an item is created",
+    "rank": 4,
+    "top3": [
+     "additional-status-codes.md",
+     "response-change-status-code.md",
+     "response-change-status-code.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Make sure the password field is not included in the response",
+    "rank": null,
+    "top3": [
+     "simple-oauth2.md",
+     "http-basic-auth.md",
+     "additional-responses.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Do some work after the response has been sent",
+    "rank": 1,
+    "top3": [
+     "background-tasks.md",
+     "release-notes.md",
+     "background.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Generate a TypeScript client from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "generate-clients.md",
+     "generate-clients.md",
+     "extending-openapi.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Protect an endpoint with HTTP Basic username and password",
+    "rank": 1,
+    "top3": [
+     "http-basic-auth.md",
+     "http-basic-auth.md",
+     "oauth2-jwt.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Accept the same header sent multiple times, like several X-Token values",
+    "rank": 1,
+    "top3": [
+     "header-params.md",
+     "release-notes.md",
+     "server-sent-events.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Read a value the browser sends in a cookie",
+    "rank": 1,
+    "top3": [
+     "cookie-params.md",
+     "cookie-param-models.md",
+     "cookie-param-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Receive a username and password submitted from an HTML form",
+    "rank": 5,
+    "top3": [
+     "http-basic-auth.md",
+     "simple-oauth2.md",
+     "simple-oauth2.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Upload a file together with some form fields in the same request",
+    "rank": 1,
+    "top3": [
+     "request-forms-and-files.md",
+     "request-files.md",
+     "request-forms-and-files.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Upload several files at once in one request",
+    "rank": 1,
+    "top3": [
+     "request-files.md",
+     "request-forms-and-files.md",
+     "request-files.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Accept a list of tags as part of a JSON body model",
+    "rank": 1,
+    "top3": [
+     "body-nested-models.md",
+     "body-nested-models.md",
+     "body-nested-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Put a model inside another model in the request body",
+    "rank": 5,
+    "top3": [
+     "release-notes.md",
+     "additional-responses.md",
+     "body-multiple-params.md"
+    ],
+    "noise": 0.4
+   },
+   {
+    "q": "Receive two different Pydantic models in one request body",
+    "rank": null,
+    "top3": [
+     "body.md",
+     "body.md",
+     "body.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Force a single body parameter to be wrapped under its own key in the JSON",
+    "rank": 1,
+    "top3": [
+     "body-multiple-params.md",
+     "body-multiple-params.md",
+     "body-multiple-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add a description and a maximum value check to a field inside a Pydantic model",
+    "rank": 1,
+    "top3": [
+     "body-fields.md",
+     "schema-extra-example.md",
+     "separate-openapi-schemas.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Require an integer path parameter to be greater than zero",
+    "rank": 1,
+    "top3": [
+     "path-params-numeric-validations.md",
+     "path-params.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Restrict a path parameter to a fixed set of allowed values",
+    "rank": 1,
+    "top3": [
+     "path-params.md",
+     "query-params.md",
+     "path-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Capture a whole file path, including slashes, in a URL parameter",
+    "rank": 1,
+    "top3": [
+     "path-params.md",
+     "path-params.md",
+     "templates.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Make a query parameter optional with a default of None",
+    "rank": 1,
+    "top3": [
+     "query-params.md",
+     "query-param-models.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Receive a list of values for the same query parameter, like ?q=foo&q=bar",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Validate a query parameter with a regular expression",
+    "rank": 1,
+    "top3": [
+     "query-params-str-validations.md",
+     "query-params-str-validations.md",
+     "query-params.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Group several query parameters into one Pydantic model",
+    "rank": 1,
+    "top3": [
+     "query-param-models.md",
+     "query-param-models.md",
+     "header-param-models.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Reject requests that include unknown query parameters",
+    "rank": 2,
+    "top3": [
+     "query-params.md",
+     "query-param-models.md",
+     "query-params.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use UUID and datetime types for request parameters",
+    "rank": 1,
+    "top3": [
+     "extra-data-types.md",
+     "index.md",
+     "using-request-directly.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Convert a Pydantic model with datetime fields into something JSON-compatible to store in a database",
+    "rank": 1,
+    "top3": [
+     "encoder.md",
+     "body-updates.md",
+     "response-directly.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Have separate input, output and database models for a user",
+    "rank": 1,
+    "top3": [
+     "extra-models.md",
+     "separate-openapi-schemas.md",
+     "separate-openapi-schemas.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Add tags, a summary and a description to an endpoint for the docs",
+    "rank": 1,
+    "top3": [
+     "path-operation-configuration.md",
+     "metadata.md",
+     "general.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mark an endpoint as deprecated in the documentation",
+    "rank": 1,
+    "top3": [
+     "path-operation-configuration.md",
+     "release-notes.md",
+     "release-notes.md"
+    ],
+    "noise": 0.6
+   },
+   {
+    "q": "Set the API title, version and contact info shown in the docs",
+    "rank": 1,
+    "top3": [
+     "metadata.md",
+     "general.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the URL where the Swagger UI documentation is served",
+    "rank": 1,
+    "top3": [
+     "metadata.md",
+     "custom-docs-ui-assets.md",
+     "index.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Register a handler for my own custom exception class",
+    "rank": 1,
+    "top3": [
+     "handling-errors.md",
+     "handling-errors.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Customize the response returned when request validation fails",
+    "rank": 1,
+    "top3": [
+     "handling-errors.md",
+     "custom-request-and-route.md",
+     "opentelemetry.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Run the app from my IDE so I can use breakpoints",
+    "rank": 1,
+    "top3": [
+     "debugging.md",
+     "fastapi-cli.md",
+     "debugging.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "A dependency that itself depends on another dependency",
+    "rank": 1,
+    "top3": [
+     "sub-dependencies.md",
+     "sub-dependencies.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Run a dependency for an endpoint without using its return value",
+    "rank": 1,
+    "top3": [
+     "dependencies-in-path-operation-decorators.md",
+     "dependencies-with-yield.md",
+     "dependencies-with-yield.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Apply one dependency to every endpoint in the whole application",
+    "rank": 1,
+    "top3": [
+     "global-dependencies.md",
+     "dependencies-in-path-operation-decorators.md",
+     "sub-dependencies.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Share common query parameters between endpoints with a reusable function",
+    "rank": 2,
+    "top3": [
+     "query-param-models.md",
+     "index.md",
+     "query-params-str-validations.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Get the currently logged in user inside an endpoint",
+    "rank": 1,
+    "top3": [
+     "get-current-user.md",
+     "simple-oauth2.md",
+     "get-current-user.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return an access token from a login endpoint using the OAuth2 password flow",
+    "rank": 2,
+    "top3": [
+     "first-steps.md",
+     "simple-oauth2.md",
+     "first-steps.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Only allow tokens that have specific permissions like items:read",
+    "rank": 2,
+    "top3": [
+     "cors.md",
+     "oauth2-scopes.md",
+     "conditional-openapi.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Document an extra 404 response with its own model in OpenAPI",
+    "rank": 1,
+    "top3": [
+     "additional-responses.md",
+     "additional-responses.md",
+     "header-param-models.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return 201 in some cases and 200 in others from the same endpoint",
+    "rank": 3,
+    "top3": [
+     "response-change-status-code.md",
+     "response-status-code.md",
+     "additional-status-codes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Pass configuration when creating a dependency, like a checker for a fixed word",
+    "rank": 1,
+    "top3": [
+     "advanced-dependencies.md",
+     "advanced-dependencies.md",
+     "advanced-dependencies.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Write async tests that call the app with an async HTTP client",
+    "rank": 1,
+    "top3": [
+     "async-tests.md",
+     "async-tests.md",
+     "testing.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "My app runs behind Nginx under a /api/v1 prefix and the docs page breaks",
+    "rank": 1,
+    "top3": [
+     "behind-a-proxy.md",
+     "behind-a-proxy.md",
+     "behind-a-proxy.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Return an HTML page instead of JSON",
+    "rank": 2,
+    "top3": [
+     "encoder.md",
+     "custom-response.md",
+     "custom-response.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Redirect the client to another URL",
+    "rank": 1,
+    "top3": [
+     "custom-response.md",
+     "behind-a-proxy.md",
+     "frontend.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use Python dataclasses instead of Pydantic models",
+    "rank": 1,
+    "top3": [
+     "dataclasses.md",
+     "dataclasses.md",
+     "dataclasses.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Compress responses with gzip",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "custom-request-and-route.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Redirect all HTTP requests to HTTPS",
+    "rank": 1,
+    "top3": [
+     "middleware.md",
+     "https.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Document the request my API will send to an external URL provided by the user",
+    "rank": 1,
+    "top3": [
+     "openapi-callbacks.md",
+     "openapi-callbacks.md",
+     "openapi-callbacks.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Describe webhook requests my app will send to users' servers",
+    "rank": 1,
+    "top3": [
+     "openapi-webhooks.md",
+     "openapi-webhooks.md",
+     "openapi-webhooks.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Set a custom operationId or hide an endpoint from the OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "path-operation-advanced-configuration.md",
+     "metadata.md",
+     "path-operation-advanced-configuration.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the status code inside the function depending on whether the item already existed",
+    "rank": 1,
+    "top3": [
+     "response-change-status-code.md",
+     "response-status-code.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Add a custom header to the response",
+    "rank": null,
+    "top3": [
+     "release-notes.md",
+     "handling-errors.md",
+     "response.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Return a raw XML response",
+    "rank": 1,
+    "top3": [
+     "response-directly.md",
+     "custom-response.md",
+     "response-directly.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Render Jinja2 HTML templates",
+    "rank": 1,
+    "top3": [
+     "templates.md",
+     "templates.md",
+     "templating.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Test startup and shutdown logic",
+    "rank": 2,
+    "top3": [
+     "events.md",
+     "testing-events.md",
+     "events.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Test a websocket endpoint",
+    "rank": 1,
+    "top3": [
+     "testing-websockets.md",
+     "opentelemetry.md",
+     "websockets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Get the client's IP address from the raw request",
+    "rank": 1,
+    "top3": [
+     "using-request-directly.md",
+     "behind-a-proxy.md",
+     "behind-a-proxy.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Mount an existing Flask application inside FastAPI",
+    "rank": 4,
+    "top3": [
+     "behind-a-proxy.md",
+     "sub-applications.md",
+     "sub-applications.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Serve the docs JavaScript and CSS myself instead of from a CDN",
+    "rank": 1,
+    "top3": [
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Change the Swagger UI syntax highlighting theme",
+    "rank": 1,
+    "top3": [
+     "configure-swagger-ui.md",
+     "configure-swagger-ui.md",
+     "configure-swagger-ui.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Decompress gzip request bodies with a custom route class",
+    "rank": 1,
+    "top3": [
+     "custom-request-and-route.md",
+     "custom-request-and-route.md",
+     "custom-request-and-route.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Add a custom logo to the generated OpenAPI schema",
+    "rank": 1,
+    "top3": [
+     "extending-openapi.md",
+     "extending-openapi.md",
+     "extending-openapi.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Use GraphQL with FastAPI",
+    "rank": 1,
+    "top3": [
+     "graphql.md",
+     "release-notes.md",
+     "graphql.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Upgrade my app from Pydantic v1 to v2",
+    "rank": 1,
+    "top3": [
+     "migrate-from-pydantic-v1-to-pydantic-v2.md",
+     "migrate-from-pydantic-v1-to-pydantic-v2.md",
+     "migrate-from-pydantic-v1-to-pydantic-v2.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Why are there separate -Input and -Output schemas in my OpenAPI docs?",
+    "rank": 1,
+    "top3": [
+     "separate-openapi-schemas.md",
+     "separate-openapi-schemas.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Get HTTPS certificates for my domain for free",
+    "rank": 1,
+    "top3": [
+     "https.md",
+     "https.md",
+     "https.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Pin the FastAPI version in my requirements",
+    "rank": 1,
+    "top3": [
+     "versions.md",
+     "versions.md",
+     "versions.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "Start the server for production without auto-reload",
+    "rank": 1,
+    "top3": [
+     "manually.md",
+     "fastapi-cli.md",
+     "fastapi-cli.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Difference between fastapi dev and fastapi run",
+    "rank": 1,
+    "top3": [
+     "fastapi-cli.md",
+     "first-steps.md",
+     "fastapi-cli.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "Create an isolated Python environment for my project",
+    "rank": 1,
+    "top3": [
+     "virtual-environments.md",
+     "settings.md",
+     "custom-docs-ui-assets.md"
+    ],
+    "noise": 0.0
+   },
+   {
+    "q": "What does Annotated mean in Python type hints?",
+    "rank": 1,
+    "top3": [
+     "python-types.md",
+     "query-params-str-validations.md",
+     "release-notes.md"
+    ],
+    "noise": 0.2
+   },
+   {
+    "q": "How should I think about restarts and the number of processes when deploying?",
+    "rank": 2,
+    "top3": [
+     "manually.md",
+     "concepts.md",
+     "docker.md"
+    ],
+    "noise": 0.0
+   }
+  ]
+ }
+}

@@ -1,0 +1,470 @@
+[
+ {
+  "q": "How can I allow a frontend running on another domain to call my API?",
+  "expected": [
+   "tutorial/cors.md"
+  ],
+  "answer": "`CORSMiddleware`를 사용하면 됩니다. 브라우저에서 실행되는 프론트엔드가 다른 origin(도메인, 프로토콜, 포트)의 백엔드를 호출할 때 CORS 설정이 필요합니다.\n\n## 설정 방법\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\n\napp = FastAPI()\n\norigins = [\n    \"http://localhost.tiangolo.com\",\n    \"https://localhost.tiangolo.com\",\n    \"http://localhost\",\n    \"http://localhost:8080\",\n]\n\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=origins,\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],\n)\n\n\n@app.get(\"/\")\nasync def main():\n    return {\"message\": \"Hello World\"}\n```\n\n`origins`에는 실제 프론트엔드 주소, 예를 들어 `https://myapp.example.com`을 넣으세요.\n\n## 주요 파라미터\n\n- `allow_origins`: 허용할 origin 목록입니다. `['*']`를 쓰면 모든 origin을 허용합니다.\n- `allow_origin_regex`: 허용할 origin을 정규식으로 지정합니다. 예: `'https://.*\\.example\\.org'`\n- `allow_methods`: 허용할 HTTP 메서드 목록입니다. 기본값은 `['GET']`이고, `['*']`로 모두 허용할 수 있습니다.\n- `allow_headers`: 허용할 요청 헤더 목록입니다. 기본값은 `[]`이고, `['*']`로 모두 허용할 수 있습니다. `Accept`, `Accept-Language`, `Content-Language`, `Content-Type`은 simple CORS 요청에서 항상 허용됩니다.\n- `allow_credentials`: 쿠키와 `Authorization` 헤더 같은 credentials를 허용할지 정합니다. 기본값은 `False`입니다.\n\n## 주의사항\n\n- 기본값은 제한적입니다. 브라우저가 cross-origin 요청을 보내게 하려면 origin, method, header를 명시적으로 허용해야 합니다.\n- `allow_credentials=True`일 때는 `allow_origins`, `allow_methods`, `allow_headers`에 `['*']`를 쓸 수 없고 명시적으로 나열해야 합니다. 검색된 문서 조각이 이 부분에서 잘려 있어서, 이 내용은 제가 알고 있는 FastAPI와 Starlette의 동작을 바탕으로 적었습니다. 전체 문장은 확인하지 못했습니다.\n- `fastapi.middleware.cors` 대신 `starlette.middleware.cors.CORSMiddleware`를 import해도 같은 클래스입니다.\n\n## 출처\n- `tutorial/cors.md` (FastAPI 공식 문서: CORS)\n- 더 자세한 내용은 [Mozilla CORS 문서](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)를 참고하세요.",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "When allow_credentials=True, allow_origins, allow_methods and allow_headers cannot be ['*'] and must be listed explicitly (the context is truncated here; the answer admits it relied on outside knowledge)",
+   "The origin is defined as domain, protocol and port (the context only says a different \"origin\")",
+   "Credentials described as cookies and Authorization headers for allow_credentials (the context's allow_credentials bullet mentions only cookies; Authorization appears in a different bullet)"
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4986,
+  "seconds": 14.7
+ },
+ {
+  "q": "Replace a dependency with a fake one during tests",
+  "expected": [
+   "advanced/testing-dependencies.md"
+  ],
+  "answer": "테스트 중에는 `app.dependency_overrides`로 의존성을 가짜로 바꿀 수 있습니다.\n\n## 방법\n\n`app.dependency_overrides`는 일반 `dict`입니다. key에는 원래 dependency 함수를 넣고, value에는 대체할 함수를 넣습니다. FastAPI는 원래 함수 대신 대체 함수를 호출합니다. 원래 dependency와 그 sub-dependency는 실행되지 않습니다.\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI\nfrom fastapi.testclient import TestClient\n\napp = FastAPI()\n\n\nasync def common_parameters(q: str | None = None, skip: int = 0, limit: int = 100):\n    return {\"q\": q, \"skip\": skip, \"limit\": limit}\n\n\n@app.get(\"/items/\")\nasync def read_items(commons: Annotated[dict, Depends(common_parameters)]):\n    return {\"message\": \"Hello Items!\", \"params\": commons}\n\n\nclient = TestClient(app)\n\n\nasync def override_dependency(q: str | None = None):\n    return {\"q\": q, \"skip\": 5, \"limit\": 10}\n\n\napp.dependency_overrides[common_parameters] = override_dependency\n\n\ndef test_override_in_items():\n    response = client.get(\"/items/\")\n    assert response.status_code == 200\n    assert response.json() == {\n        \"message\": \"Hello Items!\",\n        \"params\": {\"q\": None, \"skip\": 5, \"limit\": 10},\n    }\n```\n\n## 참고\n\n- *path operation function*, *path operation decorator*, `.include_router()` 등 앱 어디에서 쓰인 dependency든 override할 수 있습니다.\n- override를 해제하려면 빈 dict를 할당합니다.\n\n  ```python\n  app.dependency_overrides = {}\n  ```\n\n- 일부 테스트에서만 override하려면 테스트 함수 시작 시점에 설정하고 끝날 때 초기화하세요. 아래는 pytest fixture로 만든 예시입니다. 이 fixture 코드는 문서에 없고 제가 덧붙인 것입니다.\n\n  ```python\n  import pytest\n\n  @pytest.fixture\n  def override_common():\n      app.dependency_overrides[common_parameters] = override_dependency\n      yield\n      app.dependency_overrides.clear()\n  ```\n\n## 출처\n- `advanced/testing-dependencies.md`\n- `tutorial/testing.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "The pytest fixture example (override_common with yield and app.dependency_overrides.clear()) is not in the context, though the answer itself says it was added by the assistant.",
+   "The answer cites `tutorial/testing.md` as a source for the override technique, but that file only covers basic TestClient usage."
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4795,
+  "seconds": 7.1
+ },
+ {
+  "q": "Load configuration from environment variables using Pydantic",
+  "expected": [
+   "advanced/settings.md"
+  ],
+  "answer": "FastAPI에서는 `pydantic-settings` 패키지의 `BaseSettings`로 환경 변수를 읽습니다.\n\n## 1. 설치\nPydantic v2부터 `pydantic-settings`는 별도의 선택 패키지입니다. `fastapi[all]`에 포함되어 있습니다. 따로 설치할 수도 있습니다.\n```bash\npip install pydantic-settings\n```\n\n## 2. `Settings` 클래스 만들기\n`BaseSettings`를 상속하고 Pydantic 모델처럼 타입 힌트와 기본값을 선언합니다. `Field()` 같은 검증 기능도 그대로 쓸 수 있습니다.\n\n```python\n# config.py\nfrom pydantic_settings import BaseSettings\n\n\nclass Settings(BaseSettings):\n    app_name: str = \"Awesome API\"\n    admin_email: str\n    items_per_user: int = 50\n```\n\n`Settings()`를 만들 때 환경 변수를 대소문자 구분 없이 읽습니다. 예를 들어 `APP_NAME`은 `app_name`에 들어갑니다. 값은 선언한 타입으로 변환되고 검증됩니다. `admin_email`처럼 기본값이 없는 필드는 환경 변수가 없으면 에러가 납니다.\n\n실행할 때는 이렇게 환경 변수를 지정합니다.\n```bash\nADMIN_EMAIL=\"deadpool@example.com\" APP_NAME=\"ChimichangApp\" fastapi run main.py\n```\n\n## 3. `.env` 파일에서 읽기\n`python-dotenv`를 설치하고 `model_config`에 `env_file`을 지정합니다.\n\n```python\n# config.py\nfrom pydantic_settings import BaseSettings, SettingsConfigDict\n\n\nclass Settings(BaseSettings):\n    app_name: str = \"Awesome API\"\n    admin_email: str\n    items_per_user: int = 50\n\n    model_config = SettingsConfigDict(env_file=\".env\")\n```\n\n```\n# .env\nADMIN_EMAIL=\"deadpool@example.com\"\nAPP_NAME=\"ChimichangApp\"\n```\n\n## 4. 의존성으로 사용하고 `lru_cache`로 한 번만 생성하기\n`Settings()`를 호출할 때마다 `.env` 파일을 다시 읽습니다. 요청마다 읽지 않도록 `@lru_cache`를 붙입니다.\n\n```python\n# main.py\nfrom functools import lru_cache\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI\n\nfrom .config import Settings\n\napp = FastAPI()\n\n\n@lru_cache\ndef get_settings():\n    return Settings()\n\n\n@app.get(\"/info\")\nasync def info(settings: Annotated[Settings, Depends(get_settings)]):\n    return {\n        \"app_name\": settings.app_name,\n        \"admin_email\": settings.admin_email,\n        \"items_per_user\": settings.items_per_user,\n    }\n```\n\n## 5. 테스트에서 설정 바꾸기\n`dependency_overrides`로 테스트용 설정을 넣을 수 있습니다.\n\n```python\ndef get_settings_override():\n    return Settings(admin_email=\"testing_admin@example.com\")\n\napp.dependency_overrides[get_settings] = get_settings_override\n```\n\n**출처:** `advanced/settings.md`. 공식 문서의 \"Settings and Environment Variables\" 페이지입니다. 패키지 분리에 대한 내용은 `release-notes.md`에 있습니다.",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "`pip install pydantic-settings` install command is not in the context",
+   "The command `ADMIN_EMAIL=\"deadpool@example.com\" APP_NAME=\"ChimichangApp\" fastapi run main.py` and the `.env` file contents are not in the context",
+   "Fields without defaults like `admin_email` raise an error if the environment variable is missing is not stated in the context"
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 7230,
+  "seconds": 12.9
+ },
+ {
+  "q": "Show an example request body in the interactive API docs",
+  "expected": [
+   "tutorial/schema-extra-example.md"
+  ],
+  "answer": "`/docs`(Swagger UI)에 예시 요청 본문을 표시하는 방법은 세 가지입니다.\n\n## 1. Pydantic 모델에 예시 추가 (`json_schema_extra`)\n모델의 JSON Schema에 예시가 들어가고, 이 모델을 쓰는 모든 곳의 docs에 반영됩니다.\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n    description: str | None = None\n    price: float\n    tax: float | None = None\n\n    model_config = {\n        \"json_schema_extra\": {\n            \"examples\": [\n                {\n                    \"name\": \"Foo\",\n                    \"description\": \"A very nice Item\",\n                    \"price\": 35.4,\n                    \"tax\": 3.2,\n                }\n            ]\n        }\n    }\n\n\n@app.put(\"/items/{item_id}\")\nasync def update_item(item_id: int, item: Item):\n    return {\"item_id\": item_id, \"item\": item}\n```\n\n## 2. `Body(examples=[...])`\n특정 path operation에만 예시를 지정할 때 씁니다.\n\n```python\nfrom typing import Annotated\nfrom fastapi import Body, FastAPI\n\n@app.put(\"/items/{item_id}\")\nasync def update_item(\n    item_id: int,\n    item: Annotated[\n        Item,\n        Body(\n            examples=[\n                {\"name\": \"Foo\", \"description\": \"A very nice Item\", \"price\": 35.4, \"tax\": 3.2}\n            ],\n        ),\n    ],\n):\n    return {\"item_id\": item_id, \"item\": item}\n```\n\n## 3. `Body(openapi_examples={...})`\nSwagger UI에서 드롭다운으로 여러 예시를 고를 수 있습니다. 각 예시에는 `summary`, `description`, `value`, `externalValue`를 쓸 수 있습니다.\n\n```python\n@app.put(\"/items/{item_id}\")\nasync def update_item(\n    *,\n    item_id: int,\n    item: Annotated[\n        Item,\n        Body(\n            openapi_examples={\n                \"normal\": {\n                    \"summary\": \"A normal example\",\n                    \"description\": \"A **normal** item works correctly.\",\n                    \"value\": {\"name\": \"Foo\", \"description\": \"A very nice Item\", \"price\": 35.4, \"tax\": 3.2},\n                },\n                \"converted\": {\n                    \"summary\": \"An example with converted data\",\n                    \"value\": {\"name\": \"Bar\", \"price\": \"35.4\"},\n                },\n                \"invalid\": {\n                    \"summary\": \"Invalid data is rejected with an error\",\n                    \"value\": {\"name\": \"Baz\", \"price\": \"thirty five point four\"},\n                },\n            },\n        ),\n    ],\n):\n    return {\"item_id\": item_id, \"item\": item}\n```\n\n## 참고\n- `openapi_examples`는 FastAPI `0.103.0`부터 쓰는 이름입니다. 그 전에는 OpenAPI 전용 `examples` 파라미터가 이 역할을 했습니다.\n- 이 파라미터들은 `Body()`뿐 아니라 `Path()`, `Query()`, `Header()`, `Cookie()`, `Form()`, `File()`에서도 쓸 수 있습니다.\n\n출처: `tutorial/schema-extra-example.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "Specifically identifies the docs UI as Swagger UI and says openapi_examples shows a dropdown to pick among multiple examples; the context does not say this",
+   "Says Body(examples=[...]) is for a specific path operation only, which the context does not state",
+   "Says the Pydantic model examples are reflected everywhere the model is used in docs; the context only says it is used in the API docs"
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 7067,
+  "seconds": 9.3
+ },
+ {
+  "q": "Store and query data in a SQL database with SQLModel",
+  "expected": [
+   "tutorial/sql-databases.md"
+  ],
+  "answer": "FastAPI 공식 문서(`tutorial/sql-databases.md`)에 나온 SQLModel 사용법입니다. SQLModel은 SQLAlchemy와 Pydantic 위에 만들어졌습니다. FastAPI와 같은 저자가 만들었습니다. 예제는 SQLite를 쓰지만, SQLAlchemy가 지원하는 PostgreSQL, MySQL, Oracle, SQL Server 등에도 그대로 쓸 수 있습니다.\n\n## 1. 설치\n```bash\npip install sqlmodel\n```\n\n## 2. 모델 정의\n`table=True`를 붙이면 실제 SQL 테이블이 됩니다. 이 클래스는 동시에 Pydantic 모델이기도 합니다.\n\n```python\nclass Hero(SQLModel, table=True):\n    id: int | None = Field(default=None, primary_key=True)\n    name: str = Field(index=True)\n    age: int | None = Field(default=None, index=True)\n    secret_name: str\n```\n- `Field(primary_key=True)`는 기본 키를 지정합니다.\n- `id`를 `int | None`으로 선언하면 `id=None`인 객체를 만들 수 있습니다. 저장할 때 DB가 `id`를 생성합니다.\n\n## 3. Engine, 테이블 생성, Session 의존성\n```python\nsqlite_file_name = \"database.db\"\nsqlite_url = f\"sqlite:///{sqlite_file_name}\"\n\nconnect_args = {\"check_same_thread\": False}\nengine = create_engine(sqlite_url, connect_args=connect_args)\n\ndef create_db_and_tables():\n    SQLModel.metadata.create_all(engine)\n\ndef get_session():\n    with Session(engine) as session:\n        yield session\n\nSessionDep = Annotated[Session, Depends(get_session)]\n```\n- `engine`은 DB 연결을 관리합니다. 코드 전체에서 하나만 둡니다.\n- `check_same_thread=False`는 SQLite 전용 옵션입니다. 한 요청이 여러 스레드를 쓸 수 있기 때문에 필요합니다.\n- `get_session`은 `yield` 의존성입니다. 요청마다 새 `Session`을 하나씩 제공합니다.\n- `create_all`은 모든 table model의 테이블을 만듭니다.\n\n```python\napp = FastAPI()\n\n@app.on_event(\"startup\")\ndef on_startup():\n    create_db_and_tables()\n```\n`on_event(\"startup\")`은 문서 예제에 나온 방식 그대로입니다.\n\n## 4. 저장(Create)과 조회(Query)\n```python\n@app.post(\"/heroes/\")\ndef create_hero(hero: Hero, session: SessionDep) -> Hero:\n    session.add(hero)\n    session.commit()\n    session.refresh(hero)\n    return hero\n\n@app.get(\"/heroes/\")\ndef read_heroes(\n    session: SessionDep,\n    offset: int = 0,\n    limit: Annotated[int, Query(le=100)] = 100,\n) -> list[Hero]:\n    return session.exec(select(Hero).offset(offset).limit(limit)).all()\n\n@app.get(\"/heroes/{hero_id}\")\ndef read_hero(hero_id: int, session: SessionDep) -> Hero:\n    hero = session.get(Hero, hero_id)\n    if not hero:\n        raise HTTPException(status_code=404, detail=\"Hero not found\")\n    return hero\n\n@app.delete(\"/heroes/{hero_id}\")\ndef delete_hero(hero_id: int, session: SessionDep):\n    hero = session.get(Hero, hero_id)\n    if not hero:\n        raise HTTPException(status_code=404, detail=\"Hero not found\")\n    session.delete(hero)\n    session.commit()\n    return {\"ok\": True}\n```\n- 저장은 `session.add()`, `commit()`, `refresh()` 순서로 합니다.\n- 목록 조회는 `select()`에 `offset`과 `limit`을 붙여 페이지네이션합니다.\n- 한 건 조회는 `session.get(Model, id)`를 씁니다.\n\n## 5. 실무 패턴: 모델 분리 (`HeroPublic`, `HeroCreate`, `HeroUpdate`)\n위 예제는 `secret_name`까지 응답으로 노출합니다. 문서는 이를 막기 위해 모델을 나눕니다.\n\n```python\nclass HeroBase(SQLModel):\n    name: str = Field(index=True)\n    age: int | None = Field(default=None, index=True)\n\nclass Hero(HeroBase, table=True):\n    id: int | None = Field(default=None, primary_key=True)\n    secret_name: str\n\nclass HeroPublic(HeroBase):\n    id: int\n\nclass HeroCreate(HeroBase):\n    secret_name: str\n\nclass HeroUpdate(HeroBase):\n    name: str | None = None\n    age: int | None = None\n    secret_name: str | None = None\n```\n\n```python\n@app.post(\"/heroes/\", response_model=HeroPublic)\ndef create_hero(hero: HeroCreate, session: SessionDep):\n    db_hero = Hero.model_validate(hero)\n    session.add(db_hero)\n    session.commit()\n    session.refresh(db_hero)\n    return db_hero\n\n@app.get(\"/heroes/\", response_model=list[HeroPublic])\ndef read_heroes(session: SessionDep, offset: int = 0,\n                limit: Annotated[int, Query(le=100)] = 100):\n    return session.exec(select(Hero).offset(offset).limit(limit)).all()\n\n@app.patch(\"/heroes/{hero_id}\", response_model=HeroPublic)\ndef update_hero(hero_id: int, hero: HeroUpdate, session: SessionDep):\n    hero_db = session.get(Hero, hero_id)\n    if not hero_db:\n        raise HTTPException(status_code=404, detail=\"Hero not found\")\n    hero_data = hero.model_dump(exclude_unset=True)",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "The installation step `pip install sqlmodel` does not appear anywhere in the context.",
+   "The claim that the basic Hero example exposes `secret_name` in responses and that the docs split models specifically to prevent this is not stated in the context.",
+   "The claim that `check_same_thread=False` is an SQLite-only option is not stated in the context."
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 15533,
+  "seconds": 14.3
+ },
+ {
+  "q": "Return status code 201 when an item is created",
+  "expected": [
+   "tutorial/response-status-code.md"
+  ],
+  "answer": "item을 생성할 때 201을 반환하려면 path operation 데코레이터에 `status_code` 파라미터를 지정하면 됩니다.\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.post(\"/items/\", status_code=201)\nasync def create_item(name: str):\n    return {\"name\": name}\n```\n\n숫자 대신 `fastapi.status`의 상수를 쓰면 코드를 읽기 더 쉽습니다.\n\n```python\nfrom fastapi import FastAPI, status\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n    description: str | None = None\n    price: float\n    tax: float | None = None\n    tags: set[str] = set()\n\n\n@app.post(\"/items/\", status_code=status.HTTP_201_CREATED)\nasync def create_item(item: Item) -> Item:\n    return item\n```\n\n**참고**\n- `status_code`는 path operation function의 파라미터가 아닙니다. `@app.post()`, `@app.get()` 같은 데코레이터의 파라미터입니다.\n- `http.HTTPStatus` 같은 `IntEnum`도 값으로 쓸 수 있습니다.\n- 지정한 상태 코드는 실제 응답에 쓰이고, OpenAPI 스키마와 문서 UI에도 반영됩니다.\n\n**조건에 따라 다른 코드를 반환하는 경우**\n\nPUT upsert처럼 항목이 이미 있으면 200, 새로 만들었으면 201을 반환해야 할 수도 있습니다. 이때는 `JSONResponse`를 직접 반환하고 `status_code`를 지정합니다.\n\n```python\nreturn JSONResponse(status_code=status.HTTP_201_CREATED, content=item)\n```\n\n`Response`를 직접 반환하면 모델로 직렬화하거나 검증하지 않고 그대로 반환됩니다. 그래서 content가 유효한 JSON 값인지 직접 확인해야 합니다. 상태 코드만 바꾸고 싶다면 `Response` 파라미터를 주입받아 `response.status_code`를 설정하는 방법도 있습니다. 자세한 내용은 `advanced/response-change-status-code.md`에 있습니다.\n\n**출처**\n- `tutorial/response-status-code.md`\n- `tutorial/path-operation-configuration.md`\n- `advanced/additional-status-codes.md`\n- `advanced/response-change-status-code.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "Says you can inject a `Response` parameter and set `response.status_code` to change only the status code; the context only says a different status code can be returned and never shows this mechanism.",
+   "Says returning a Response directly means the content is not validated; the context says only that it is not serialized with a model.",
+   "Says the constants from `fastapi.status` make the code easier to read; the context only says they help when you don't remember the numeric codes."
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4777,
+  "seconds": 7.9
+ },
+ {
+  "q": "Accept the same header sent multiple times, like several X-Token values",
+  "expected": [
+   "tutorial/header-params.md"
+  ],
+  "answer": "同じヘッダーが複数回送られてくる場合は、型を `list` として宣言し、`Header()` を使います。\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import FastAPI, Header\n\napp = FastAPI()\n\n\n@app.get(\"/items/\")\nasync def read_items(x_token: Annotated[list[str] | None, Header()] = None):\n    return {\"X-Token values\": x_token}\n```\n\n次のように同じヘッダーを2回送るとします。\n\n```\nX-Token: foo\nX-Token: bar\n```\n\nこのとき、`x_token` にはすべての値が Python の `list` として入ります。ドキュメントの例では、レスポンスは次のとおりです。\n\n```json\n{\n    \"X-Token values\": [\"bar\", \"foo\"]\n}\n```\n\nドキュメントの出力例では `bar` が `foo` より先に出ています。そのため、リストの順序に依存するコードは書かないほうが安全です。\n\n補足です。\n- `Header()` は省略できません。省略すると、そのパラメーターは query parameter として解釈されます。\n- `x_token` のようにアンダースコアで書いた変数名は、FastAPI が自動的に `X-Token` ヘッダーに変換します。\n- ヘッダーが必須の場合は、`| None = None` を外して `list[str]` と宣言します。\n- Pydantic モデルを使う場合は、`x_tag: list[str] = []` のようなフィールドでも同じことができます。詳しくは Header Parameter Models のドキュメントを見てください。\n\n出典: `tutorial/header-params.md`(Duplicate headers セクション)、`release-notes.md`(Header Parameter Models の説明)",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "ヘッダーが必須の場合は `| None = None` を外して `list[str]` と宣言する (the context does not say how to make it required)",
+   "リストの順序に依存するコードは書かないほうが安全 (the advice about not relying on order is the assistant's inference, not stated in the context)",
+   "アンダースコアの変数名が自動的に `X-Token` に変換される (the context says only that underscores are converted, not the specific `X-Token` example)"
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4249,
+  "seconds": 7.9
+ },
+ {
+  "q": "Accept a list of tags as part of a JSON body model",
+  "expected": [
+   "tutorial/body-nested-models.md"
+  ],
+  "answer": "Pydantic 모델에 `list[str]` 타입의 속성을 선언하면 JSON body로 tags 리스트를 받을 수 있습니다.\n\n## 기본: `list[str]`\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n\nclass Item(BaseModel):\n    name: str\n    description: str | None = None\n    price: float\n    tax: float | None = None\n    tags: list[str] = []\n\n\n@app.put(\"/items/{item_id}\")\nasync def update_item(item_id: int, item: Item):\n    results = {\"item_id\": item_id, \"item\": item}\n    return results\n```\n\n요청 body 예시:\n\n```json\n{\n    \"name\": \"Foo\",\n    \"price\": 42.0,\n    \"tags\": [\"rock\", \"metal\", \"bar\"]\n}\n```\n\n- `tags: list = []`처럼 타입 파라미터 없이 선언해도 리스트로 받을 수 있습니다. 이 경우 요소 타입은 검증되지 않습니다.\n- `list[str]`로 선언하면 각 요소가 문자열인지 검증하고 변환합니다. 문서(OpenAPI)에도 반영됩니다.\n\n## 중복 제거: `set[str]`\n\ntags가 중복되면 안 된다면 `set`을 사용하세요.\n\n```python\nclass Item(BaseModel):\n    name: str\n    price: float\n    tags: set[str] = set()\n```\n\n요청에 중복 값이 들어와도 고유한 항목의 set으로 변환됩니다. 응답으로 내보낼 때도 고유한 항목만 나가고, 문서에도 그렇게 표시됩니다.\n\n## 참고\n- body 최상위 값 자체가 배열이라면, 함수 파라미터에 `tags: list[str]`처럼 직접 선언할 수도 있습니다. 이 경우 단일 body 파라미터가 리스트가 됩니다.\n- 리스트 안에 하위 모델을 넣으려면 `images: list[Image] | None = None`처럼 선언합니다.\n\n출처: `tutorial/body-nested-models.md`. 해당 문서의 \"Declare a `list` with a type parameter\", \"Set types\", \"Attributes with lists of submodels\" 섹션을 참고했습니다.",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "`list[str]` declaration validates that each element is a string and converts it (the context only says it makes tags a 'list of strings')",
+   "For a top-level array body, a single body parameter becomes the list, shown with `tags: list[str]` (the context's example uses `images: list[Image]`)",
+   "The JSON request body example with only name, price and tags is not in the context (though it is consistent with it)"
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 5889,
+  "seconds": 8.6
+ },
+ {
+  "q": "Require an integer path parameter to be greater than zero",
+  "expected": [
+   "tutorial/path-params-numeric-validations.md"
+  ],
+  "answer": "`Path()`에 `gt=0`을 지정하면 됩니다.\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import FastAPI, Path\n\napp = FastAPI()\n\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(\n    item_id: Annotated[int, Path(title=\"The ID of the item to get\", gt=0)],\n):\n    return {\"item_id\": item_id}\n```\n\n- `gt=0`은 값이 0보다 커야 한다는 뜻입니다. 정수에서는 `ge=1`과 같습니다.\n- 값이 0 이하이면 FastAPI가 `422 Unprocessable Entity` 검증 오류를 반환합니다.\n- 다른 제약도 함께 쓸 수 있습니다. 예를 들어 `Path(gt=0, le=1000)`은 1부터 1000까지만 허용합니다.\n- 제약 옵션은 다음과 같습니다.\n  - `gt`: 초과\n  - `ge`: 이상\n  - `lt`: 미만\n  - `le`: 이하\n- `Path`는 `fastapi`에서 import해야 합니다.\n- path parameter는 항상 필수입니다. 그래서 `Path(...)`처럼 기본값을 지정하지 않아도 됩니다.\n\n출처: `tutorial/path-params-numeric-validations.md`. 문서의 \"greater than and less than or equal\" 섹션에 `gt=0, le=1000` 예제가 있고, \"greater than or equal\" 섹션에 `ge=1` 예제가 있습니다.",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "Invalid values (0 or below) cause FastAPI to return a `422 Unprocessable Entity` validation error",
+   "Path parameters are always required, so `Path(...)` doesn't need a default value",
+   "The `lt` meaning (less than) is only partly supported; the context shows `lt` in a float example but does not describe it in the list of options"
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4335,
+  "seconds": 5.7
+ },
+ {
+  "q": "Validate a query parameter with a regular expression",
+  "expected": [
+   "tutorial/query-params-str-validations.md"
+  ],
+  "answer": "`Query()` 의 `pattern` 인자에 정규식을 넘기면 query parameter 를 정규식으로 검증할 수 있습니다. `Query` 는 `Annotated` 안에 넣습니다.\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import FastAPI, Query\n\napp = FastAPI()\n\n\n@app.get(\"/items/\")\nasync def read_items(\n    q: Annotated[\n        str | None, Query(min_length=3, max_length=50, pattern=\"^fixedquery$\")\n    ] = None,\n):\n    results = {\"items\": [{\"item_id\": \"Foo\"}, {\"item_id\": \"Bar\"}]}\n    if q:\n        results.update({\"q\": q})\n    return results\n```\n\n**패턴 `^fixedquery$` 의 의미**\n- `^`: 이 앞에는 다른 문자가 없고, 여기서 시작합니다.\n- `fixedquery`: 값이 정확히 `fixedquery` 입니다.\n- `$`: `fixedquery` 뒤에는 다른 문자가 없고, 여기서 끝납니다.\n\n**동작**\n- 값이 패턴과 맞지 않으면 FastAPI 가 클라이언트에 명확한 검증 오류(422)를 돌려줍니다.\n- 이 제약은 OpenAPI 스키마와 자동 문서에도 반영됩니다.\n- `pattern` 은 `min_length`, `max_length` 같은 다른 검증 인자와 함께 쓸 수 있습니다.\n- `Path()`, `Body()`, `Header()`, `Cookie()` 도 같은 인자를 받습니다.\n\n**참고:** 예전 버전 문서와 예제에서는 `regex=` 인자를 썼습니다. 현재 문서는 `pattern=` 을 사용합니다.\n\n출처: `tutorial/query-params-str-validations.md` (\"Add regular expressions\" 섹션)",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "The validation error is a 422 status code; the context does not mention 422.",
+   "Older docs and examples used the `regex=` argument; the context never mentions `regex=`.",
+   "The claim that the pattern constraint is reflected in OpenAPI and the auto docs is only supported for max_length, not for pattern."
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4566,
+  "seconds": 7.9
+ },
+ {
+  "q": "Have separate input, output and database models for a user",
+  "expected": [
+   "tutorial/extra-models.md"
+  ],
+  "answer": "user 모델을 input, output, database용으로 나누려면 `UserBase`를 공통 부모로 두고 모델마다 다른 필드만 선언하면 됩니다.\n\n## 각 모델의 역할\n- **Input model(`UserIn`)**: 평문 `password`를 받을 수 있어야 합니다.\n- **Output model(`UserOut`)**: `password`가 없어야 합니다.\n- **Database model(`UserInDB`)**: 해시된 비밀번호(`hashed_password`)를 가져야 합니다.\n\n## 예제 코드\n공통 필드를 `UserBase`에 두면 중복을 줄일 수 있습니다.\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel, EmailStr\n\napp = FastAPI()\n\n\nclass UserBase(BaseModel):\n    username: str\n    email: EmailStr\n    full_name: str | None = None\n\n\nclass UserIn(UserBase):\n    password: str\n\n\nclass UserOut(UserBase):\n    pass\n\n\nclass UserInDB(UserBase):\n    hashed_password: str\n\n\ndef fake_password_hasher(raw_password: str):\n    return \"supersecret\" + raw_password\n\n\ndef fake_save_user(user_in: UserIn):\n    hashed_password = fake_password_hasher(user_in.password)\n    user_in_db = UserInDB(**user_in.model_dump(), hashed_password=hashed_password)\n    print(\"User saved! ..not really\")\n    return user_in_db\n\n\n@app.post(\"/user/\", response_model=UserOut)\nasync def create_user(user_in: UserIn):\n    user_saved = fake_save_user(user_in)\n    return user_saved\n```\n\n## 동작 방식\n- 요청 body는 `UserIn`으로 검증되므로 `password`를 받습니다.\n- `user_in.model_dump()`로 dict를 만들고 `**`로 풀어서 `UserInDB`에 넘깁니다. 이때 `hashed_password`를 추가로 지정합니다.\n- 함수가 `hashed_password`가 들어 있는 `UserInDB`를 반환해도 `response_model=UserOut`이 있어서 FastAPI가 `UserOut`에 없는 필드를 걸러냅니다. 그래서 응답에는 비밀번호 관련 필드가 나가지 않습니다.\n- `EmailStr`을 쓰려면 `email-validator`가 필요합니다. `pip install \"pydantic[email]\"`로 설치할 수 있습니다.\n\n## 주의사항\n- 평문 비밀번호는 절대 저장하지 마세요. 항상 secure hash를 저장해야 합니다. 예제의 `fake_password_hasher`는 설명용입니다. 실제 해싱 방법은 security 챕터에 나옵니다.\n- 모델을 하나만 입력과 출력에 같이 쓰면(`-> UserIn`) 응답에 비밀번호가 그대로 노출될 수 있습니다.\n- SQLModel을 쓴다면 같은 방식으로 `HeroBase`, `Hero(table=True)`, `HeroCreate`, `HeroPublic`처럼 나눕니다.\n\n## 출처\n- `tutorial/extra-models.md`: Extra Models, Reduce duplication\n- `tutorial/response-model.md`: Add an output model\n- `tutorial/security/simple-oauth2.md`: `User`와 `UserInDB` 예제\n- `tutorial/sql-databases.md`: SQLModel로 모델 나누기",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "`pip install \"pydantic[email]\"` — the context shows `uv add \"pydantic[email]\"`, not pip",
+   "Claim that FastAPI filters out `hashed_password` when `UserInDB` is returned with `response_model=UserOut` is an inference; the context only shows filtering for `UserIn` returned with `UserOut`",
+   "Says the real hashing method appears in the security chapters, which the context only hints at via a link to password hashing"
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 11271,
+  "seconds": 10.9
+ },
+ {
+  "q": "Register a handler for my own custom exception class",
+  "expected": [
+   "tutorial/handling-errors.md"
+  ],
+  "answer": "커스텀 예외 클래스를 정의하고 `@app.exception_handler()` 데코레이터로 핸들러를 등록하면 됩니다.\n\n```python\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\n\n\nclass UnicornException(Exception):\n    def __init__(self, name: str):\n        self.name = name\n\n\napp = FastAPI()\n\n\n@app.exception_handler(UnicornException)\nasync def unicorn_exception_handler(request: Request, exc: UnicornException):\n    return JSONResponse(\n        status_code=418,\n        content={\"message\": f\"Oops! {exc.name} did something. There goes a rainbow...\"},\n    )\n\n\n@app.get(\"/unicorns/{name}\")\nasync def read_unicorn(name: str):\n    if name == \"yolo\":\n        raise UnicornException(name=name)\n    return {\"unicorn_name\": name}\n```\n\n**동작 방식**\n- `/unicorns/yolo`를 요청하면 *path operation*에서 `UnicornException`이 발생합니다.\n- 이 예외는 `unicorn_exception_handler`가 처리하고, 상태 코드 `418`과 아래 JSON을 반환합니다.\n  ```json\n  {\"message\": \"Oops! yolo did something. There goes a rainbow...\"}\n  ```\n\n**참고**\n- 핸들러 함수는 `request: Request`와 `exc`(해당 예외 인스턴스)를 인자로 받습니다.\n- `fastapi.Request`와 `fastapi.responses.JSONResponse` 대신 `starlette.requests.Request`와 `starlette.responses.JSONResponse`를 써도 됩니다.\n- 데코레이터 대신 `app.add_exception_handler(UnicornException, unicorn_exception_handler)`로도 등록할 수 있습니다. 이 방법은 이번 검색 결과에는 없었고 Starlette API를 기준으로 한 설명입니다.\n- 예외를 `yield`가 있는 dependency 안에서 잡아 처리하는 방법은 `tutorial/dependencies/dependencies-with-yield.md`에 있습니다. 그 문서도 전역 처리가 필요하면 커스텀 예외 핸들러를 쓰라고 안내합니다.\n\n**출처**: `tutorial/handling-errors.md`의 \"Install custom exception handlers\" 섹션",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "`app.add_exception_handler(UnicornException, unicorn_exception_handler)` also registers a handler (the answer admits this is not in the context and comes from Starlette API knowledge)",
+   "The handler function receives `request: Request` and `exc` (the exception instance) as arguments (this is inferred from the example code, not stated explicitly)"
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 6096,
+  "seconds": 7.5
+ },
+ {
+  "q": "Apply one dependency to every endpoint in the whole application",
+  "expected": [
+   "tutorial/dependencies/global-dependencies.md"
+  ],
+  "answer": "애플리케이션 전체에 의존성을 적용하려면 `FastAPI()`를 만들 때 `dependencies` 파라미터에 넘기면 됩니다.\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Header, HTTPException\n\n\nasync def verify_token(x_token: Annotated[str, Header()]):\n    if x_token != \"fake-super-secret-token\":\n        raise HTTPException(status_code=400, detail=\"X-Token header invalid\")\n\n\nasync def verify_key(x_key: Annotated[str, Header()]):\n    if x_key != \"fake-super-secret-key\":\n        raise HTTPException(status_code=400, detail=\"X-Key header invalid\")\n    return x_key\n\n\napp = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])\n\n\n@app.get(\"/items/\")\nasync def read_items():\n    return [{\"item\": \"Portal Gun\"}, {\"item\": \"Plumbus\"}]\n\n\n@app.get(\"/users/\")\nasync def read_users():\n    return [{\"username\": \"Rick\"}, {\"username\": \"Morty\"}]\n```\n\n**동작 방식**\n- `app = FastAPI(dependencies=[Depends(...)])`로 등록한 의존성은 앱의 모든 *path operation*에 적용됩니다. 여기에는 `include_router`로 포함한 router의 엔드포인트도 들어갑니다.\n- 이 방식은 path operation 데코레이터의 `dependencies=[...]`와 규칙이 같습니다. 의존성의 반환값은 사용되지 않고, 예외를 발생시키면 요청이 중단됩니다.\n- 위 예시에서는 모든 엔드포인트가 `X-Token`과 `X-Key` 헤더를 요구합니다. 이 헤더들은 OpenAPI 문서에도 반영됩니다.\n\n**bigger applications에서의 조합**\n- 전역 의존성은 각 `APIRouter`나 `include_router(..., dependencies=[...])`에 지정한 의존성과 합쳐져서 적용됩니다.\n\n```python\napp = FastAPI(dependencies=[Depends(get_query_token)])\n\napp.include_router(\n    admin.router,\n    prefix=\"/admin\",\n    dependencies=[Depends(get_token_header)],\n)\n```\n\n**출처**\n- `tutorial/dependencies/global-dependencies.md`\n- `tutorial/bigger-applications.md`\n- `tutorial/dependencies/dependencies-in-path-operation-decorators.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "Global dependencies also apply to endpoints of routers added via include_router (context only says they are combined with each APIRouter's dependencies).",
+   "Dependency return values are not used and raising an exception aborts the request (this comes from the decorator-dependencies page, which is not in the context).",
+   "The X-Token and X-Key headers are reflected in the OpenAPI docs (not stated in the context)."
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4315,
+  "seconds": 7.2
+ },
+ {
+  "q": "Document an extra 404 response with its own model in OpenAPI",
+  "expected": [
+   "advanced/additional-responses.md"
+  ],
+  "answer": "path operation decorator의 `responses` 파라미터를 사용하면 됩니다. `responses`는 `dict`입니다. 키는 상태 코드이고, 값은 각 응답 정보를 담은 `dict`입니다. 이 값 `dict`에 `model` 키로 Pydantic model을 넣을 수 있습니다.\n\n## 기본 예제\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.responses import JSONResponse\nfrom pydantic import BaseModel\n\n\nclass Item(BaseModel):\n    id: str\n    value: str\n\n\nclass Message(BaseModel):\n    message: str\n\n\napp = FastAPI()\n\n\n@app.get(\"/items/{item_id}\", response_model=Item, responses={404: {\"model\": Message}})\nasync def read_item(item_id: str):\n    if item_id == \"foo\":\n        return {\"id\": \"foo\", \"value\": \"there goes my hero\"}\n    return JSONResponse(status_code=404, content={\"message\": \"Item not found\"})\n```\n\n- FastAPI가 `Message` model로 JSON Schema를 만들고, OpenAPI의 `content` 아래 올바른 위치에 넣습니다.\n- `model` 키는 OpenAPI 표준이 아닙니다. FastAPI가 이 키를 처리하는 용도로만 쓰입니다.\n- 추가 응답은 OpenAPI 문서에만 반영됩니다. 그래서 위 예제처럼 `JSONResponse` 같은 `Response`를 직접 반환해야 합니다.\n\n## description과 example도 함께 지정하기\n\n`response_model`, `status_code`, `responses`의 정보는 하나로 합쳐집니다. 404에 `description`을 붙이고, 200에 `example`을 추가하는 예제입니다.\n\n```python\n@app.get(\n    \"/items/{item_id}\",\n    response_model=Item,\n    responses={\n        404: {\"model\": Message, \"description\": \"The item was not found\"},\n        200: {\n            \"description\": \"Item requested by ID\",\n            \"content\": {\n                \"application/json\": {\n                    \"example\": {\"id\": \"bar\", \"value\": \"The bar tenders\"}\n                }\n            },\n        },\n    },\n)\nasync def read_item(item_id: str):\n    ...\n```\n\n## 참고\n\n- 코드 안에서 `HTTPException(status_code=404)`를 raise하는 경우에도, 문서에 404 응답 모델을 표시하려면 `responses`에 따로 선언해야 합니다.\n\n출처:\n- `advanced/additional-responses.md`(섹션 \"Additional Response with `model`\", \"Combining information\")\n- `advanced/path-operation-advanced-configuration.md`(섹션 \"Additional Responses\")",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "Raising `HTTPException(status_code=404)` in code still requires declaring the 404 response model separately in `responses` for it to appear in the docs. The context never mentions HTTPException.",
+   "The `model` key \"is used only for FastAPI to process\" is a slight paraphrase of the context. It is mostly supported.",
+   "The claim that additional responses are reflected only in the OpenAPI docs, which is why you must return a Response directly, reverses the context's causal relation. The context only says you must return a Response directly."
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4813,
+  "seconds": 11.1
+ },
+ {
+  "q": "Return an HTML page instead of JSON",
+  "expected": [
+   "advanced/custom-response.md"
+  ],
+  "answer": "JSON 대신 HTML 페이지를 반환하는 방법은 두 가지입니다.\n\n## 1. `HTMLResponse` 사용하기\n\npath operation decorator에 `response_class=HTMLResponse`를 지정하고, HTML 문자열을 반환합니다.\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.responses import HTMLResponse\n\napp = FastAPI()\n\n\n@app.get(\"/items/\", response_class=HTMLResponse)\nasync def read_items():\n    return \"\"\"\n    <html>\n        <head>\n            <title>Some HTML in here</title>\n        </head>\n        <body>\n            <h1>Look ma! HTML!</h1>\n        </body>\n    </html>\n    \"\"\"\n```\n\n- `response_class`는 응답의 media type도 정합니다. 이 경우 `Content-Type` 헤더가 `text/html`로 설정됩니다.\n- OpenAPI 문서와 interactive docs에도 HTML로 표시됩니다.\n- 출처: `advanced/custom-response.md`\n\n## 2. Jinja2 템플릿 사용하기\n\n동적인 HTML 페이지가 필요하면 `Jinja2Templates`를 사용합니다. 먼저 `jinja2`를 설치해야 합니다.\n\n```python\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import HTMLResponse\nfrom fastapi.staticfiles import StaticFiles\nfrom fastapi.templating import Jinja2Templates\n\napp = FastAPI()\n\napp.mount(\"/static\", StaticFiles(directory=\"static\"), name=\"static\")\n\ntemplates = Jinja2Templates(directory=\"templates\")\n\n\n@app.get(\"/items/{id}\", response_class=HTMLResponse)\nasync def read_item(request: Request, id: str):\n    return templates.TemplateResponse(\n        request=request, name=\"item.html\", context={\"id\": id}\n    )\n```\n\n`templates/item.html` 파일에서는 context 값을 이렇게 사용합니다.\n\n```html\nItem ID: {{ id }}\n```\n\n- path operation에 `Request` 파라미터를 선언해야 합니다.\n- `TemplateResponse`에는 `request`, 템플릿 `name`, `context` dict를 넘깁니다.\n- FastAPI 0.108.0 / Starlette 0.29.0 이전에는 `name`이 첫 번째 파라미터였고, `request`는 context 안에 넣어 전달했습니다.\n- 출처: `advanced/templates.md`\n\n## 참고\n\n- `response_class=HTMLResponse`를 선언하지 않으면 docs UI가 응답을 HTML로 인식하지 못합니다.\n- `HTMLResponse` 인스턴스를 직접 `return`해도 됩니다. 이 경우 `response_class`를 지정하지 않으면 OpenAPI 문서에는 HTML로 표시되지 않습니다.",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "먼저 `jinja2`를 설치해야 합니다 (the context never mentions installing jinja2)",
+   "`templates/item.html` file containing `Item ID: {{ id }}` is presented as a file; the context only shows this as rendered template content, not the file name/location",
+   "Returning an `HTMLResponse` instance directly without `response_class` means OpenAPI won't show HTML is not stated in the context (only that passing it in response_class documents it)"
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 5420,
+  "seconds": 9.3
+ },
+ {
+  "q": "Document the request my API will send to an external URL provided by the user",
+  "expected": [
+   "advanced/openapi-callbacks.md"
+  ],
+  "answer": "사용자가 제공한 외부 URL로 API가 보내는 요청은 **OpenAPI Callbacks**로 문서화할 수 있습니다. 외부 API가 어떤 모양이어야 하는지(path, body, response)를 문서에 적어 두는 방식입니다.\n\n## 방법\n\n**1. callback용 `APIRouter`를 만들고, 외부 API가 구현해야 할 *path operation*을 정의합니다.**\n- 이 코드는 실제로 실행되지 않습니다. 문서화 용도로만 쓰입니다.\n- 외부 개발자가 된 것처럼 작성하면 body와 response 모델을 어디에 둘지 판단하기 쉽습니다.\n\n**2. 내 API의 *path operation* 데코레이터에 `callbacks=`로 그 router의 `.routes`를 넘깁니다.**\n- router 자체가 아니라 `.routes` 속성을 넘겨야 합니다.\n\n```python\nfrom fastapi import APIRouter, FastAPI\nfrom pydantic import BaseModel, HttpUrl\n\napp = FastAPI()\n\n\nclass Invoice(BaseModel):\n    id: str\n    title: str | None = None\n    customer: str\n    total: float\n\n\nclass InvoiceEvent(BaseModel):\n    description: str\n    paid: bool\n\n\nclass InvoiceEventReceived(BaseModel):\n    ok: bool\n\n\ninvoices_callback_router = APIRouter()\n\n\n@invoices_callback_router.post(\n    \"{$callback_url}/invoices/{$request.body.id}\", response_model=InvoiceEventReceived\n)\ndef invoice_notification(body: InvoiceEvent):\n    pass\n\n\n@app.post(\"/invoices/\", callbacks=invoices_callback_router.routes)\ndef create_invoice(invoice: Invoice, callback_url: HttpUrl | None = None):\n    \"\"\"\n    Create an invoice. ...\n    \"\"\"\n    # Send the invoice, collect the money, send the notification (the callback)\n    return {\"msg\": \"Invoice received\"}\n```\n\n## callback path expression\n\n`\"{$callback_url}/invoices/{$request.body.id}\"`는 [OpenAPI 3 expression](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#key-expression)입니다. 원래 요청의 일부를 가져와 경로를 만듭니다.\n\n- 사용자가 `POST https://yourapi.com/invoices/?callback_url=https://www.external.org/events`를 호출하고 body의 `id`를 `\"2expen51ve\"`로 보냈다고 가정합니다.\n- 이 경우 API는 `https://www.external.org/events/invoices/2expen51ve`로 callback 요청을 보냅니다.\n- 이 요청의 body는 `InvoiceEvent`(`description`, `paid`) 모양입니다.\n- 외부 API는 `InvoiceEventReceived`(`ok`) 모양으로 응답해야 합니다.\n\n## 확인\n\n앱을 실행하고 `/docs`에 들어가면 해당 *path operation*에 **\"Callbacks\"** 섹션이 생기고, 외부 API가 따라야 할 형태가 표시됩니다.\n\n## 참고\n- `callback_url`에는 Pydantic `HttpUrl` 타입을 쓰는 것이 좋습니다.\n- 위 코드는 문서화만 담당합니다. 실제로 외부 URL에 요청을 보내는 코드(예: `httpx`)는 *path operation* 안이나 background task에서 따로 작성해야 합니다.\n- `APIRouter`에도 `callbacks` 파라미터가 있어서, router 전체의 *path operation*에 callback을 공통으로 적용할 수 있습니다. (release-notes.md)\n\n**출처:** `advanced/openapi-callbacks.md`, `release-notes.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "Actual sending code (e.g. `httpx`) should be written separately inside the path operation or in a background task; the context does not mention httpx or background tasks.",
+   "The claim that using the Pydantic `HttpUrl` type for `callback_url` is 'recommended'; the context only notes that it uses a Pydantic Url type.",
+   "The expected response shape `InvoiceEventReceived(ok)` is taken from the code, but the context text for the expected response was cut off."
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 8524,
+  "seconds": 11.5
+ },
+ {
+  "q": "Return a raw XML response",
+  "expected": [
+   "advanced/response-directly.md"
+  ],
+  "answer": "`Response`를 직접 반환하면서 `media_type=\"application/xml\"`을 지정하면 raw XML을 반환할 수 있습니다.\n\n```python\nfrom fastapi import FastAPI, Response\n\napp = FastAPI()\n\n\n@app.get(\"/legacy/\")\ndef get_legacy_data():\n    data = \"\"\"<?xml version=\"1.0\"?>\n    <shampoo>\n    <Header>\n        Apply shampoo here.\n    </Header>\n    <Body>\n        You'll have to use soap here.\n    </Body>\n    </shampoo>\n    \"\"\"\n    return Response(content=data, media_type=\"application/xml\")\n```\n\n- `Response`의 `content`에는 `str` 또는 `bytes`를 넘길 수 있습니다.\n- `Content-Length` 헤더는 자동으로 추가됩니다. `Content-Type` 헤더는 `media_type`을 기준으로 추가되고, 텍스트 타입이면 charset도 붙습니다.\n- `Response`를 직접 반환하면 데이터 변환, 검증, `response_model` 필터링이 적용되지 않습니다. 반환한 내용이 그대로 전송됩니다.\n- 직접 반환하면 OpenAPI 문서에도 `application/xml` 미디어 타입이 자동으로 표시되지 않습니다. 문서에 표시하려면 데코레이터에 `response_class=Response`를 지정하거나 `responses=` 파라미터로 직접 선언해야 합니다. 이 부분은 검색된 문서 내용을 바탕으로 한 설명이며, 이 방법으로 직접 실행해 확인하지는 않았습니다.\n\n출처:\n- `advanced/response-directly.md`: \"Returning a custom `Response`\" 섹션\n- `advanced/custom-response.md`: \"`Response`\" 섹션",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "Returning a Response directly skips validation and response_model filtering (the context only says data is not automatically converted)",
+   "Specifying `response_class=Response` in the decorator makes `application/xml` show up in the OpenAPI docs (the context never shows this exact usage)"
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 6996,
+  "seconds": 8.5
+ },
+ {
+  "q": "Mount an existing Flask application inside FastAPI",
+  "expected": [
+   "advanced/wsgi.md"
+  ],
+  "answer": "기존 Flask 앱은 `a2wsgi`의 `WSGIMiddleware`로 감싼 뒤 `app.mount()`로 마운트하면 됩니다.\n\n## 설치\n\n```bash\nuv add a2wsgi\n# 또는\npip install a2wsgi flask\n```\n\n## 예제\n\n```python\nfrom a2wsgi import WSGIMiddleware\nfrom fastapi import FastAPI\nfrom flask import Flask, request\nfrom markupsafe import escape\n\nflask_app = Flask(__name__)\n\n\n@flask_app.route(\"/\")\ndef flask_main():\n    name = request.args.get(\"name\", \"World\")\n    return f\"Hello, {escape(name)} from Flask!\"\n\n\napp = FastAPI()\n\n\n@app.get(\"/v2\")\ndef read_main():\n    return {\"message\": \"Hello World\"}\n\n\napp.mount(\"/v1\", WSGIMiddleware(flask_app))\n```\n\n## 동작 방식\n- `/v1` 아래의 모든 경로(예: `/v1/`, `/v1/?name=Foo`)는 Flask 앱이 처리합니다.\n- `/v2` 같은 나머지 경로는 FastAPI가 처리합니다.\n- 마운트한 Flask 앱은 FastAPI의 OpenAPI 문서(`/docs`)에 나타나지 않습니다. 서브 애플리케이션으로 취급되기 때문입니다.\n\n## 참고\n- 예전에는 `fastapi.middleware.wsgi`의 `WSGIMiddleware`를 사용했지만 **deprecated**되었습니다. 사용법은 같으므로 `a2wsgi`에서 import하세요.\n- Django 같은 다른 WSGI 앱도 같은 방식으로 마운트할 수 있습니다.\n- 프록시 뒤에서 실행할 때는 `root_path` 설정을 함께 확인하세요. 이 내용은 Behind a Proxy 문서에 있습니다.\n\n출처: `advanced/wsgi.md`. 관련 문서로 `advanced/sub-applications.md`와 `advanced/behind-a-proxy.md`가 있습니다.",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "The Flask app mounted this way does not appear in FastAPI's OpenAPI docs (/docs) because it is treated as a sub-application",
+   "The example paths `/v1/` and `/v1/?name=Foo` are not in the context",
+   "`pip install a2wsgi flask` is not in the context, and neither is the advice to check `root_path` settings when running behind a proxy"
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4262,
+  "seconds": 7.9
+ },
+ {
+  "q": "Use GraphQL with FastAPI",
+  "expected": [
+   "how-to/graphql.md"
+  ],
+  "answer": "FastAPI는 ASGI 표준을 따르기 때문에 ASGI를 지원하는 GraphQL 라이브러리라면 대부분 통합할 수 있습니다. 일반 *path operation*과 GraphQL을 같은 애플리케이션에서 함께 쓸 수도 있습니다.\n\n## 권장 방법: Strawberry 🍓\nStrawberry는 type annotation 기반이라 FastAPI와 설계가 가장 비슷해서 권장됩니다. 설치는 `pip install strawberry-graphql`로 하면 됩니다. 이 설치 명령은 문서에 없어서 제가 덧붙였습니다.\n\n```python\nimport strawberry\nfrom fastapi import FastAPI\nfrom strawberry.fastapi import GraphQLRouter\n\n\n@strawberry.type\nclass User:\n    name: str\n    age: int\n\n\n@strawberry.type\nclass Query:\n    @strawberry.field\n    def user(self) -> User:\n        return User(name=\"Patrick\", age=100)\n\n\nschema = strawberry.Schema(query=Query)\n\ngraphql_app = GraphQLRouter(schema)\n\napp = FastAPI()\napp.include_router(graphql_app, prefix=\"/graphql\")\n```\n\n서버를 실행한 뒤 `/graphql`에 접속하면 됩니다. 이 경로의 GraphQL 화면 제공 여부는 제가 문서로 확인하지 못했습니다. Strawberry 쪽 문서를 참고하세요.\n\n## 다른 라이브러리 선택지\n- **Ariadne**: FastAPI 연동 문서가 있습니다.\n- **Tartiflette**: Tartiflette ASGI를 사용합니다.\n- **Graphene**: starlette-graphene3를 사용합니다.\n- 예전 Starlette의 `GraphQLApp`은 deprecated 되었습니다. 이 클래스를 쓰던 코드는 인터페이스가 거의 같은 `starlette-graphene3`로 옮기면 됩니다.\n\n## 참고\n- GraphQL은 일반 웹 API와 비교했을 때 장단점이 있습니다. 도입 전에 사용 사례에 맞는지 먼저 평가해 보세요.\n- 0.6x 버전대 릴리스에서 `graphene`이 FastAPI의 optional dependency에서 빠졌습니다. 지금은 별도로 설치해야 합니다.\n\n**출처**\n- 공식 문서 `how-to/graphql.md`\n- Strawberry의 FastAPI 연동 문서: https://strawberry.rocks/docs/integrations/fastapi\n- `release-notes.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "`pip install strawberry-graphql` install command (the answer itself admits it is not in the docs)",
+   "The claim that graphene was removed as an optional dependency in the \"0.6x\" release series is not supported; the context never gives a version number for that release (it only mentions the Starlette 0.15.0 upgrade).",
+   "\"Now you have to install it separately\" is an inference that the context does not state."
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 6089,
+  "seconds": 9.0
+ },
+ {
+  "q": "Start the server for production without auto-reload",
+  "expected": [
+   "deployment/manually.md",
+   "fastapi-cli.md"
+  ],
+  "answer": "프로덕션 모드로 서버를 시작하려면 `fastapi run`을 사용하세요.\n\n```console\n$ fastapi run\n```\n\n`uv`를 쓰는 경우:\n\n```console\n$ uv run fastapi run\n```\n\n**동작 방식**\n- `fastapi run`은 프로덕션 모드로 실행합니다. **auto-reload는 기본적으로 꺼져 있으므로** 별도 옵션이 필요 없습니다. (`fastapi dev`는 auto-reload가 켜져 있어 개발용으로만 써야 합니다.)\n- 기본 host는 `0.0.0.0`입니다. 사용 가능한 모든 IP에서 접근할 수 있으므로 컨테이너 환경에서 흔히 쓰는 설정입니다.\n- 보통은 앞단에서 HTTPS를 처리하는 \"termination proxy\"를 두는 것이 좋습니다.\n- `fastapi run`은 `FASTAPI_ENV`를 변경하지 않습니다. 앱 코드에서 프로덕션 여부를 구분해야 한다면 직접 `FASTAPI_ENV=production`으로 설정하세요.\n\n**멀티 코어를 활용하려면 `--workers`를 추가합니다.**\n\n```console\n$ fastapi run --workers 4\n```\n\n`uvicorn`을 직접 쓸 때도 `--reload` 없이 실행하면 같은 효과입니다.\n\n```console\n$ uvicorn main:app --host 0.0.0.0 --port 80 --workers 4\n```\n\nKubernetes에서는 보통 workers를 쓰지 않고, 컨테이너당 Uvicorn 프로세스 하나를 실행하는 방식이 권장됩니다.\n\n**출처**\n- `fastapi-cli.md` (`fastapi run`, `fastapi dev` 섹션)\n- `deployment/server-workers.md`\n- `deployment/docker.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "`uv run fastapi run` is shown as a command for `uv` users, but the context only shows `uv run fastapi dev`",
+   "The `uvicorn main:app --host 0.0.0.0 --port 80 --workers 4` command and the claim that running without `--reload` gives the same effect are not in the context",
+   "The `fastapi run --workers 4` example with the value 4 is not shown in the context, which only mentions the `--workers` option generally"
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 6030,
+  "seconds": 7.9
+ }
+]

@@ -1,0 +1,118 @@
+[
+ {
+  "q": "How can I allow a frontend running on another domain to call my API?",
+  "expected": [
+   "tutorial/cors.md"
+  ],
+  "answer": "FastAPI에서는 `CORSMiddleware`를 사용해 CORS(Cross-Origin Resource Sharing)를 설정합니다. 프론트엔드의 origin(도메인, 프로토콜, 포트의 조합)이 백엔드와 다르면 브라우저가 요청을 막습니다. 백엔드가 허용할 origin을 명시해야 이 제한이 풀립니다.\n\n## 기본 설정\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\n\napp = FastAPI()\n\norigins = [\n    \"http://localhost.tiangolo.com\",\n    \"https://localhost.tiangolo.com\",\n    \"http://localhost\",\n    \"http://localhost:8080\",\n]\n\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=origins,\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],\n)\n\n@app.get(\"/\")\nasync def main():\n    return {\"message\": \"Hello World\"}\n```\n\n`origins`에는 실제 프론트엔드 주소를 넣으세요. 예를 들면 `https://myapp.example.com`입니다.\n\n## 주요 파라미터\n\n- `allow_origins`: 허용할 origin 목록입니다. `[\"*\"]`를 쓰면 모든 origin을 허용합니다.\n- `allow_credentials`: 쿠키와 Authorization 헤더를 허용할지 정합니다. 기본값은 `False`입니다.\n- `allow_methods`: 허용할 HTTP 메서드입니다. `[\"*\"]`로 전체를 허용할 수 있습니다.\n- `allow_headers`: 허용할 HTTP 헤더입니다. `[\"*\"]`로 전체를 허용할 수 있습니다.\n- `expose_headers`: 브라우저에서 접근할 수 있게 할 응답 헤더입니다. 기본값은 `[]`입니다.\n- `max_age`: 브라우저가 CORS 응답을 캐시하는 최대 시간(초)입니다. 기본값은 `600`입니다.\n\n## 주의사항\n\n- `CORSMiddleware`의 기본값은 제한적입니다. 허용할 origin, 메서드, 헤더를 명시적으로 지정해야 브라우저가 cross-origin 요청을 보냅니다.\n- `allow_credentials=True`이면 `allow_origins`, `allow_methods`, `allow_headers`를 `[\"*\"]`로 둘 수 없습니다. 각각 구체적으로 나열해야 합니다.\n- `from starlette.middleware.cors import CORSMiddleware`로 import해도 같습니다. FastAPI는 편의를 위해 `fastapi.middleware`에서 제공할 뿐입니다.\n\n## 출처\n- `tutorial/cors.md`: https://fastapi.tiangolo.com/tutorial/cors/\n- MDN CORS 문서: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "origin is defined as a combination of domain, protocol, and port (not stated in the context)",
+   "the browser blocks requests when the frontend origin differs from the backend (the context only defines CORS)",
+   "the example origin `https://myapp.example.com` and the source URL https://fastapi.tiangolo.com/tutorial/cors/ do not appear in the context"
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4758,
+  "seconds": 9.1
+ },
+ {
+  "q": "Store and query data in a SQL database with SQLModel",
+  "expected": [
+   "tutorial/sql-databases.md"
+  ],
+  "answer": "# FastAPI에서 SQLModel로 SQL 데이터베이스 저장·조회하기\n\n출처: `tutorial/sql-databases.md`\n\n## 1. 설치\n```console\n$ uv add sqlmodel\n```\n`pip install sqlmodel`로 설치해도 됩니다. SQLModel은 SQLAlchemy와 Pydantic 위에 만들어졌습니다. PostgreSQL, MySQL, SQLite, Oracle, MS SQL Server처럼 SQLAlchemy가 지원하는 DB는 모두 쓸 수 있습니다. 문서 예제는 파일 하나로 동작하는 SQLite를 씁니다.\n\n## 2. 기본 예제 (모델 하나로 시작)\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, HTTPException, Query\nfrom sqlmodel import Field, Session, SQLModel, create_engine, select\n\n\nclass Hero(SQLModel, table=True):\n    id: int | None = Field(default=None, primary_key=True)\n    name: str = Field(index=True)\n    age: int | None = Field(default=None, index=True)\n    secret_name: str\n\n\nsqlite_file_name = \"database.db\"\nsqlite_url = f\"sqlite:///{sqlite_file_name}\"\n\nconnect_args = {\"check_same_thread\": False}\nengine = create_engine(sqlite_url, connect_args=connect_args)\n\n\ndef create_db_and_tables():\n    SQLModel.metadata.create_all(engine)\n\n\ndef get_session():\n    with Session(engine) as session:\n        yield session\n\n\nSessionDep = Annotated[Session, Depends(get_session)]\n\napp = FastAPI()\n\n\n@app.on_event(\"startup\")\ndef on_startup():\n    create_db_and_tables()\n\n\n@app.post(\"/heroes/\")\ndef create_hero(hero: Hero, session: SessionDep) -> Hero:\n    session.add(hero)\n    session.commit()\n    session.refresh(hero)\n    return hero\n\n\n@app.get(\"/heroes/\")\ndef read_heroes(\n    session: SessionDep,\n    offset: int = 0,\n    limit: Annotated[int, Query(le=100)] = 100,\n) -> list[Hero]:\n    heroes = session.exec(select(Hero).offset(offset).limit(limit)).all()\n    return heroes\n\n\n@app.get(\"/heroes/{hero_id}\")\ndef read_hero(hero_id: int, session: SessionDep) -> Hero:\n    hero = session.get(Hero, hero_id)\n    if not hero:\n        raise HTTPException(status_code=404, detail=\"Hero not found\")\n    return hero\n\n\n@app.delete(\"/heroes/{hero_id}\")\ndef delete_hero(hero_id: int, session: SessionDep):\n    hero = session.get(Hero, hero_id)\n    if not hero:\n        raise HTTPException(status_code=404, detail=\"Hero not found\")\n    session.delete(hero)\n    session.commit()\n    return {\"ok\": True}\n```\n\n## 3. 핵심 개념\n- **Table model**: `table=True`를 붙이면 실제 DB 테이블이 됩니다. 붙이지 않으면 일반 Pydantic 데이터 모델입니다. 그래서 요청 본문과 반환 타입에 그대로 쓸 수 있습니다.\n- **Primary key**: `id: int | None = Field(default=None, primary_key=True)`로 선언합니다. Python에서는 `id=None`으로 객체를 만들 수 있고, 저장할 때 DB가 `id`를 생성합니다.\n- **`engine`**: DB 연결을 보관하며, 코드 전체에서 하나만 둡니다. SQLite에서 `check_same_thread=False`가 필요한 이유는 한 요청이 여러 스레드를 쓸 수 있기 때문입니다.\n- **테이블 생성**: `SQLModel.metadata.create_all(engine)`을 앱 시작 시점에 호출합니다.\n- **`Session` 의존성**: `yield`를 쓰는 dependency로 요청마다 새 `Session`을 만듭니다. `Annotated`로 `SessionDep`를 만들어 재사용합니다.\n- **저장**: `session.add()`, `session.commit()`, `session.refresh()` 순서로 호출합니다.\n- **조회**: `session.exec(select(Hero).offset(offset).limit(limit)).all()`로 목록을 가져오고, 단건은 `session.get(Hero, id)`로 가져옵니다. `Query(le=100)`으로 `limit` 상한을 걸어 둡니다.\n\n## 4. 실무 패턴: 모델 분리 (`HeroPublic` / `HeroCreate` / `HeroUpdate`)\n`secret_name` 같은 필드를 응답에 노출하지 않으려면 모델을 나눕니다. 이 방식에서는 `response_model`로 응답을 검증하고 직렬화합니다.\n```python\nclass HeroBase(SQLModel):\n    name: str = Field(index=True)\n    age: int | None = Field(default=None, index=True)\n\n\nclass Hero(HeroBase, table=True):\n    id: int | None = Field(default=None, primary_key=True)\n    secret_name: str\n\n\nclass HeroPublic(HeroBase):\n    id: int\n\n\nclass HeroCreate(HeroBase):\n    secret_name: str\n\n\nclass HeroUpdate(HeroBase):\n    name: str | None = None\n    age: int | None = None\n    secret_name: str | None = None\n\n\n@app.post(\"/heroes/\", response_model=HeroPublic)\ndef create_hero(hero: HeroCreate, session: SessionDep):\n    db_hero = Hero.model_validate(hero)\n    session.add(db_hero)\n    session.commit()\n    session.refresh(db_hero)\n    return db_hero\n\n\n@app.get(\"/heroes/\", response_model=list[HeroPublic])\ndef read_heroes(\n    session: SessionDep,\n    offset: int = 0,\n    limit: Annotated[int, Query(le=100)",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "`pip install sqlmodel`로 설치해도 됩니다 (the context only shows `uv add sqlmodel`)",
+   "Using `HeroPublic` is described as a way to avoid exposing fields like `secret_name` in responses (the context does not state this purpose)",
+   "Creating tables is described as happening 'at app startup' (the context only shows the `on_startup` code, with no explanation)"
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 17476,
+  "seconds": 13.9
+ },
+ {
+  "q": "Require an integer path parameter to be greater than zero",
+  "expected": [
+   "tutorial/path-params-numeric-validations.md"
+  ],
+  "answer": "`Path()`에 `gt=0`을 지정하면 됩니다.\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import FastAPI, Path\n\napp = FastAPI()\n\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(\n    item_id: Annotated[int, Path(title=\"The ID of the item to get\", gt=0)],\n):\n    return {\"item_id\": item_id}\n```\n\n- `gt=0`은 0보다 커야 한다는 뜻이고, 따라서 `1` 이상의 정수만 허용됩니다.\n- `/items/0`이나 `/items/-5`처럼 조건에 맞지 않는 값이 들어오면 FastAPI가 자동으로 `422 Unprocessable Entity` 에러를 반환합니다.\n- 정수 값에 대해서는 `ge=1`도 같은 효과를 냅니다.\n- 상한도 함께 걸 수 있습니다. 예를 들면 `Path(gt=0, le=1000)`입니다.\n\n사용할 수 있는 숫자 제약 조건은 다음과 같습니다.\n- `gt`: greater than(초과)\n- `ge`: greater than or equal(이상)\n- `lt`: less than(미만)\n- `le`: less than or equal(이하)\n\n`float`에도 같은 제약을 쓸 수 있습니다. 이때는 `gt=0`이 특히 유용합니다. `0.5`는 허용하고 `0`과 `0.0`은 거부하기 때문입니다.\n\n출처: `tutorial/path-params-numeric-validations.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "FastAPI automatically returns a `422 Unprocessable Entity` error for values like `/items/0` or `/items/-5` (the context never mentions the 422 status code).",
+   "The claim that `ge=1` has the same effect as `gt=0` for integers is inferred and not stated in the context."
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4340,
+  "seconds": 6.2
+ },
+ {
+  "q": "Apply one dependency to every endpoint in the whole application",
+  "expected": [
+   "tutorial/dependencies/global-dependencies.md"
+  ],
+  "answer": "`FastAPI` 인스턴스를 만들 때 `dependencies` 파라미터를 넘기면 됩니다. 그러면 앱의 모든 *path operation*에 그 dependency가 적용됩니다.\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Depends, FastAPI, Header, HTTPException\n\n\nasync def verify_token(x_token: Annotated[str, Header()]):\n    if x_token != \"fake-super-secret-token\":\n        raise HTTPException(status_code=400, detail=\"X-Token header invalid\")\n\n\nasync def verify_key(x_key: Annotated[str, Header()]):\n    if x_key != \"fake-super-secret-key\":\n        raise HTTPException(status_code=400, detail=\"X-Key header invalid\")\n    return x_key\n\n\napp = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])\n\n\n@app.get(\"/items/\")\nasync def read_items():\n    return [{\"item\": \"Portal Gun\"}, {\"item\": \"Plumbus\"}]\n\n\n@app.get(\"/users/\")\nasync def read_users():\n    return [{\"username\": \"Rick\"}, {\"username\": \"Morty\"}]\n```\n\n**참고 사항**\n- `dependencies`는 리스트라서 여러 개를 넣을 수 있습니다. 위 예시에서는 `/items/`와 `/users/` 모두 `verify_token`과 `verify_key`를 실행합니다.\n- 이렇게 등록한 dependency의 반환값은 path operation 함수로 전달되지 않습니다. 검증이나 부수 효과(side effect)가 필요할 때 쓰는 방식입니다. 값이 필요하면 해당 엔드포인트에서 따로 `Depends`로 선언하세요.\n- 여러 파일로 나눈 큰 앱에서는 `APIRouter`나 `include_router(..., dependencies=[...])`에 지정한 dependency가 앱 전역 dependency와 합쳐져서 적용됩니다. 예를 들어 `FastAPI(dependencies=[Depends(get_query_token)])`로 전역 dependency를 두고, `admin.router`에는 `dependencies=[Depends(get_token_header)]`를 추가로 붙일 수 있습니다.\n- 특정 엔드포인트에만 적용하고 싶다면 path operation 데코레이터의 `dependencies=[...]`를 쓰면 됩니다.\n\n**출처**\n- `tutorial/dependencies/global-dependencies.md`\n- `tutorial/bigger-applications.md`\n- `tutorial/dependencies/dependencies-in-path-operation-decorators.md`",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 3,
+  "relevance": 5,
+  "unsupported": [
+   "The return values of dependencies registered globally are not passed to the path operation function; the context never states this.",
+   "If a value is needed, declare Depends separately on that endpoint; this is not in the context.",
+   "Dependencies set on APIRouter itself are combined with global dependencies; the context only shows include_router dependencies combined with global ones."
+  ],
+  "turns": 2,
+  "tool_calls": 1,
+  "tools": [
+   "search_docs"
+  ],
+  "tokens": 4351,
+  "seconds": 11.0
+ },
+ {
+  "q": "Return a raw XML response",
+  "expected": [
+   "advanced/response-directly.md"
+  ],
+  "answer": "`Response`를 직접 반환하고 `media_type=\"application/xml\"`을 지정하면 XML을 그대로 돌려줄 수 있습니다.\n\n```python\nfrom fastapi import FastAPI, Response\n\napp = FastAPI()\n\n\n@app.get(\"/legacy/\")\ndef get_legacy_data():\n    data = \"\"\"<?xml version=\"1.0\"?>\n    <shampoo>\n    <Header>\n        Apply shampoo here.\n    </Header>\n    <Body>\n        You'll have to use soap here.\n    </Body>\n    </shampoo>\n    \"\"\"\n    return Response(content=data, media_type=\"application/xml\")\n```\n\n## 설명\n- `Response`의 `content`에는 `str` 또는 `bytes`를 넘길 수 있습니다.\n- `media_type`은 `Content-Type` 헤더 값을 정합니다. 텍스트 타입이면 charset이 자동으로 붙습니다.\n- `Content-Length` 헤더도 자동으로 추가됩니다.\n- `status_code`와 `headers`를 인자로 넘겨 상태 코드와 헤더를 지정할 수도 있습니다.\n- `Response`를 직접 반환하면 FastAPI는 데이터를 자동 변환하거나 검증하지 않습니다. `response_model`을 선언해도 적용되지 않습니다.\n- 같은 이유로 OpenAPI 문서에도 `application/xml` 미디어 타입이 자동으로 표시되지 않습니다. 문서에 표시하려면 데코레이터에 `responses={200: {\"content\": {\"application/xml\": {}}}}`를 추가하는 방법이 있습니다. 이 방법은 `additional-responses.md`의 이미지 예제를 응용한 것이고, XML용 예제가 문서에 따로 있지는 않습니다.\n\n## 출처\n- `advanced/response-directly.md`: Returning a custom `Response`\n- `advanced/custom-response.md`: `Response`\n- `advanced/additional-responses.md`: Additional media types for the main response",
+  "retrieved": true,
+  "cited": true,
+  "faithfulness": 4,
+  "relevance": 5,
+  "unsupported": [
+   "Adding `responses={200: {\"content\": {\"application/xml\": {}}}}` to the decorator would make `application/xml` appear in the OpenAPI docs is an extrapolation from the image/png example, not stated in the context.",
+   "The claim that returning a `Response` directly means FastAPI does not validate the data is not stated; the context only says the data isn't automatically converted.",
+   "The `Response` parameters are described accurately, but the claim that the `Content-Type` charset is appended only for text types goes slightly beyond the context's wording."
+  ],
+  "turns": 2,
+  "tool_calls": 2,
+  "tools": [
+   "search_docs",
+   "search_docs"
+  ],
+  "tokens": 6764,
+  "seconds": 8.6
+ }
+]

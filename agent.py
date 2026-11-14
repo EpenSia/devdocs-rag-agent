@@ -22,7 +22,9 @@
 import asyncio
 import json
 import os
+import re
 import sys
+import time
 from contextlib import AsyncExitStack, asynccontextmanager
 from pathlib import Path
 
@@ -36,6 +38,7 @@ load_dotenv(BASE_DIR / ".env")
 
 MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-5-5")
 MAX_TURNS = 8
+MAX_TOKENS = 4096  # 답변 최대 길이 (6단계: 2048에서는 read_doc 후 긴 답변이 중간에 잘림)
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_MCP_URL = os.getenv("GITHUB_MCP_URL", "https://api.githubcopilot.com/mcp/")
@@ -46,6 +49,8 @@ GITHUB_TOOLS = ["search_issues", "issue_read", "issue_write"]
 # 외부 세계를 바꾸는 도구 → 실행 전에 반드시 사람 승인
 WRITE_TOOLS = {"issue_write"}
 
+OUTSIDE_DOCS_TITLE = "문서 외 참고"  # 검색 결과에 없는 일반 지식을 모아 두는 섹션 제목 (평가 스크립트도 사용)
+
 SYSTEM_PROMPT = f"""You are a FastAPI support agent.
 Workflow:
 1. Search the official docs first (search_docs, read_doc).
@@ -54,16 +59,44 @@ Workflow:
 3. Only if still unresolved AND the user asks for it, draft an issue with issue_write.
    Issues may ONLY be created in the sandbox repo: {SANDBOX_REPO or "(not configured - do not create issues)"}.
    A human will review and approve the draft before it is created.
-Cite sources (doc file or issue URL). Answer in Korean, keep code and API names in English."""
+
+Grounding rules (6단계: 근거 밖 보충을 줄이기 위해 추가):
+- The main answer must contain ONLY information found in tool results.
+  Cite the source (doc file or issue URL) for each key point.
+- If a result is cut off ("...(truncated") or lacks a detail you need (exact parameters,
+  a full example, required steps), call read_doc on that source BEFORE answering.
+  Do not fill gaps from memory.
+- Helpful information that is NOT in the tool results (install commands, status codes,
+  general Python/HTTP knowledge, tips) may appear ONLY in a final section titled
+  "## {OUTSIDE_DOCS_TITLE}", kept short. If there is nothing to add, omit that section entirely.
+- If the docs do not cover the question, say so plainly.
+
+Language: ALWAYS write the entire answer in Korean (한국어), even when the question and
+the docs are in English. Keep code, API names and file paths in English."""
 
 
 def log(tag: str, msg: str = ""):
+    if os.getenv("AGENT_QUIET"):  # 평가 스크립트에서 대량 실행할 때 로그 끄기
+        return
     print(f"\033[90m[{tag}]\033[0m {msg}", flush=True)
 
 
 def short(text: str, n: int = 150) -> str:
     text = " ".join(str(text).split())
     return text if len(text) <= n else text[:n] + " ..."
+
+
+def is_korean(text: str) -> bool:
+    """한국어 답변인가. 한국어 문장에는 일본어 가나가 나오지 않고 한자도 거의 쓰지 않는다는 점을 이용.
+    (6단계: 한자 비율만 보던 첫 버전은 첫 문장이 일본어인 답변을 놓쳤음)"""
+    hangul = len(re.findall(r"[가-힣]", text))
+    kana = len(re.findall(r"[぀-ヿ]", text))
+    han = len(re.findall(r"[一-鿿]", text))
+    return hangul > 0 and kana == 0 and han < 10  # 가나는 1자도 허용 안 함 (6단계: 'テス트'처럼 2자만 섞인 경우를 놓쳤음)
+
+
+REWRITE_IN_KOREAN = ("Your answer above is not entirely in Korean. Rewrite the whole answer in Korean (한국어), "
+                     "keeping the same content, code and sources. Do not call any tools.")
 
 
 def to_claude_tool(t) -> dict:
@@ -133,19 +166,41 @@ def check_write(name: str, args: dict) -> str | None:
 
 
 # ── 에이전트 루프 (3단계와 동일 + 도구 라우팅 + 승인) ─────────
-async def run_agent(question: str, registry: dict, tools: list[dict], llm) -> str:
+async def run_agent(question: str, registry: dict, tools: list[dict], llm,
+                    trace: dict | None = None) -> str:
+    """trace에 dict를 넘기면 실행 기록(턴 수, 도구 호출, 도구 결과, 토큰, 시간)을 채워 준다 (6단계 평가용)."""
     messages = [{"role": "user", "content": question}]
+    t = trace if trace is not None else {}
+    t.update(turns=0, tool_calls=[], tool_results=[], input_tokens=0, output_tokens=0,
+             truncated=False, language_fixed=False)
+    started = time.perf_counter()
 
     for turn in range(1, MAX_TURNS + 1):
         resp = llm.messages.create(
-            model=MODEL, max_tokens=2048, system=SYSTEM_PROMPT,
+            model=MODEL, max_tokens=MAX_TOKENS, system=SYSTEM_PROMPT,
             tools=tools, messages=messages,
         )
         log(f"turn {turn}", f"stop_reason = {resp.stop_reason}")
         messages.append({"role": "assistant", "content": resp.content})
+        usage = getattr(resp, "usage", None)
+        t["turns"] = turn
+        t["input_tokens"] += getattr(usage, "input_tokens", 0) or 0
+        t["output_tokens"] += getattr(usage, "output_tokens", 0) or 0
+        t["seconds"] = round(time.perf_counter() - started, 1)
 
         if resp.stop_reason != "tool_use":
-            return "".join(b.text for b in resp.content if b.type == "text")
+            answer = "".join(b.text for b in resp.content if b.type == "text")
+            # 언어 가드레일: 프롬프트로 지시해도 가끔 중국어·일본어가 섞임 → 코드로 검사하고 한 번만 다시 쓰게 함
+            if not is_korean(answer) and not t["language_fixed"] and turn < MAX_TURNS:
+                log("warn", "답변이 한국어가 아니어서 다시 쓰도록 요청합니다")
+                t["language_fixed"] = True
+                messages.append({"role": "user", "content": REWRITE_IN_KOREAN})
+                continue
+            t["truncated"] = resp.stop_reason == "max_tokens"
+            if t["truncated"]:  # 잘린 답변을 완성된 답변처럼 내보내지 않도록 표시
+                log("warn", f"답변이 최대 길이({MAX_TOKENS} 토큰)에서 잘렸습니다")
+                answer += "\n\n(⚠️ 답변이 길이 제한으로 중간에 잘렸습니다.)"
+            return answer
 
         tool_results = []
         for block in resp.content:
@@ -181,6 +236,8 @@ async def run_agent(question: str, registry: dict, tools: list[dict], llm) -> st
                     text, is_error = f"Tool error: {e}", True
 
             log("result", ("❌ " if is_error else "") + short(text))
+            t["tool_calls"].append({"name": block.name, "input": block.input})
+            t["tool_results"].append(text)
             tool_results.append({
                 "type": "tool_result", "tool_use_id": block.id,
                 "content": text, "is_error": is_error,

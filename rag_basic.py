@@ -42,6 +42,7 @@ CHUNK_OVERLAP = 150
 TOP_K = 5
 MAX_RETURN_CHARS = 4000  # 반환용 청크 최대 길이 (검색 결과 5개가 Claude 컨텍스트를 과하게 차지하지 않게)
 RRF_K = 60  # RRF 상수: 순위가 낮은 결과의 영향력을 완만하게 줄임 (관례적으로 60)
+SEARCH_MODE = os.getenv("SEARCH_MODE", "hybrid")  # 6단계 평가 결과로 정함: vector / bm25 / hybrid
 
 
 @lru_cache(maxsize=1)  # DB 연결은 한 번만 만들고 재사용
@@ -238,7 +239,8 @@ def _bm25_search(query: str, k: int):
 
 
 # 4-3. 하이브리드: 두 결과의 '순위'를 합침 (RRF). 점수 단위가 달라도 순위는 비교 가능하기 때문.
-def retrieve(query: str, k: int = TOP_K, mode: str = "hybrid"):
+def retrieve(query: str, k: int = TOP_K, mode: str | None = None):
+    mode = mode or SEARCH_MODE
     pool = max(k * 4, 20)  # 각 방식에서 넉넉히 후보를 뽑은 뒤 합침
     if mode == "vector":
         return _vector_search(query, k)
@@ -258,10 +260,10 @@ def retrieve(query: str, k: int = TOP_K, mode: str = "hybrid"):
     return [hits[i] for i in best]
 
 
-def search(query: str, mode: str = "hybrid"):
+def search(query: str, mode: str | None = None):
     for i, h in enumerate(retrieve(query, mode=mode), 1):
         dist = f"distance={h['distance']:.3f}" if h.get("distance") is not None else "keyword only"
-        via = "+".join(h.get("matched_by", [mode]))
+        via = "+".join(h.get("matched_by", [mode or SEARCH_MODE]))
         print(f"\n[{i}] {h['source']} › {h['section']}  ({dist}, via {via})")
         print(h["text"][:300].replace("\n", " ") + " ...")
 
@@ -293,7 +295,7 @@ def ask(query: str):
 # ── CLI ───────────────────────────────────────────────
 if __name__ == "__main__":
     args = sys.argv[1:]
-    mode = next((a.split("=", 1)[1] for a in args if a.startswith("--mode=")), "hybrid")
+    mode = next((a.split("=", 1)[1] for a in args if a.startswith("--mode=")), None)
     args = [a for a in args if not a.startswith("--mode=")]
     if len(args) < 2 or args[0] not in {"index", "search", "ask"}:
         print(__doc__)
